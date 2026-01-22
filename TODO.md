@@ -1,0 +1,4 @@
+- [x] Remove login and register modals from welcome.blade.php
+- [x] Update header buttons to link to Laravel auth routes instead of opening modals
+- [x] Remove modal-related JavaScript code
+- [x] Clean up CSS and HTML structure
