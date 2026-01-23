@@ -1,4 +1,5 @@
-- [x] Remove login and register modals from welcome.blade.php
-- [x] Update header buttons to link to Laravel auth routes instead of opening modals
-- [x] Remove modal-related JavaScript code
-- [x] Clean up CSS and HTML structure
+# TODO: Fix Route [users.store] Not Defined
+
+- [x] Add POST route for users.store in routes/web.php
+- [x] Implement store method in UserController.php
+- [x] Test the application to ensure user creation works

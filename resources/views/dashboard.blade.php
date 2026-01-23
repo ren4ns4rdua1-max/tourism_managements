@@ -347,7 +347,7 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             @php
                                 $actions = [
-                                    ['title' => 'Add User', 'icon' => 'user-add', 'color' => 'blue', 'url' => '#'],
+                                    ['title' => 'Add User', 'icon' => 'user-add', 'color' => 'blue', 'url' =>route('users.index')],
                                     ['title' => 'Upload Photo', 'icon' => 'camera', 'color' => 'green', 'url' => route('gallery.create')],
                                     ['title' => 'Create Report', 'icon' => 'document-text', 'color' => 'purple', 'url' => '#'],
                                     ['title' => 'Manage Team', 'icon' => 'users', 'color' => 'orange', 'url' => '#'],
