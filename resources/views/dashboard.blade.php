@@ -215,52 +215,22 @@
                                     <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Monthly revenue performance</p>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200" onclick="changeTimeRange('7d')">
+                                    <button id="btn-7d" class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200" onclick="changeTimeRange('7d')">
                                         Last 7 days
                                     </button>
-                                    <button class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('30d')">
+                                    <button id="btn-30d" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('30d')">
                                         Last 30 days
                                     </button>
-                                    <button class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('ytd')">
+                                    <button id="btn-ytd" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('ytd')">
                                         Year to date
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div class="p-6">
-                            <!-- Enhanced Chart Placeholder -->
+                            <!-- Chart.js Revenue Chart -->
                             <div class="h-80 relative">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="text-center">
-                                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                            </svg>
-                                        </div>
-                                        <p class="text-gray-700 dark:text-gray-300 font-medium">Interactive Chart Area</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">This is where your chart library would render</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Mock Chart Bars -->
-                                <div class="absolute bottom-0 left-0 right-0 h-48 flex items-end justify-between px-8">
-                                    @php
-                                        $chartData = [65, 59, 80, 81, 56, 55, 70, 75, 85, 78, 82, 90];
-                                        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                                    @endphp
-                                    @foreach($chartData as $index => $value)
-                                    <div class="flex flex-col items-center">
-                                        <div 
-                                            class="w-6 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg hover:from-blue-600 hover:to-blue-500 transition-all duration-300 cursor-pointer"
-                                            style="height: {{ $value * 1.8 }}px;"
-                                            title="{{ $months[$index] }}: ${{ $value * 1000 }}"
-                                            onmouseenter="this.classList.add('w-8')"
-                                            onmouseleave="this.classList.remove('w-8')"
-                                        ></div>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ $months[$index] }}</span>
-                                    </div>
-                                    @endforeach
-                                </div>
+                                <canvas id="revenueChart" width="400" height="200"></canvas>
                             </div>
                             
                             <!-- Chart Summary -->
@@ -378,13 +348,13 @@
                             @php
                                 $actions = [
                                     ['title' => 'Add User', 'icon' => 'user-add', 'color' => 'blue', 'url' => '#'],
-                                    ['title' => 'Create Report', 'icon' => 'document-text', 'color' => 'green', 'url' => '#'],
-                                    ['title' => 'Manage Team', 'icon' => 'users', 'color' => 'purple', 'url' => '#'],
-                                    ['title' => 'Settings', 'icon' => 'cog', 'color' => 'orange', 'url' => '#'],
-                                    ['title' => 'Analytics', 'icon' => 'chart-bar', 'color' => 'indigo', 'url' => '#'],
-                                    ['title' => 'Messages', 'icon' => 'mail', 'color' => 'pink', 'url' => '#'],
-                                    ['title' => 'Calendar', 'icon' => 'calendar', 'color' => 'teal', 'url' => '#'],
-                                    ['title' => 'Help Center', 'icon' => 'question-mark-circle', 'color' => 'red', 'url' => '#'],
+                                    ['title' => 'Upload Photo', 'icon' => 'camera', 'color' => 'green', 'url' => route('gallery.create')],
+                                    ['title' => 'Create Report', 'icon' => 'document-text', 'color' => 'purple', 'url' => '#'],
+                                    ['title' => 'Manage Team', 'icon' => 'users', 'color' => 'orange', 'url' => '#'],
+                                    ['title' => 'Settings', 'icon' => 'cog', 'color' => 'indigo', 'url' => '#'],
+                                    ['title' => 'Analytics', 'icon' => 'chart-bar', 'color' => 'pink', 'url' => '#'],
+                                    ['title' => 'Messages', 'icon' => 'mail', 'color' => 'teal', 'url' => '#'],
+                                    ['title' => 'Calendar', 'icon' => 'calendar', 'color' => 'red', 'url' => '#'],
                                 ];
                             @endphp
                             
@@ -396,6 +366,9 @@
                                             <svg class="h-6 w-6 text-{{ $action['color'] }}-600 dark:text-{{ $action['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 @if($action['icon'] === 'user-add')
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                                @elseif($action['icon'] === 'camera')
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 @elseif($action['icon'] === 'document-text')
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 @elseif($action['icon'] === 'users')
@@ -673,18 +646,40 @@
 
         // Time range selector for chart
         function changeTimeRange(range) {
-            const buttons = document.querySelectorAll('[onclick^="changeTimeRange"]');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            // Reset all buttons
+            const buttons = ['btn-7d', 'btn-30d', 'btn-ytd'];
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
             });
-            
-            const activeBtn = document.querySelector(`[onclick="changeTimeRange('${range}')"]`);
-            activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            activeBtn.classList.add('bg-blue-600', 'text-white');
-            
-            // Here you would typically fetch new data based on the time range
-            console.log(`Changed time range to: ${range}`);
+
+            // Highlight active button
+            const activeBtn = document.getElementById(`btn-${range}`);
+            activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
+            activeBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+
+            // Update chart data based on range
+            let labels, data;
+            switch(range) {
+                case '7d':
+                    labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
+                    data = [12000, 15000, 18000, 14000, 22000, 19000, 25000];
+                    break;
+                case '30d':
+                    labels = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
+                    data = Array.from({length: 30}, () => Math.floor(Math.random() * 30000) + 10000);
+                    break;
+                case 'ytd':
+                default:
+                    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    data = [65000, 59000, 80000, 81000, 56000, 55000, 70000, 75000, 85000, 78000, 82000, 90000];
+                    break;
+            }
+
+            revenueChart.data.labels = labels;
+            revenueChart.data.datasets[0].data = data;
+            revenueChart.update();
         }
 
         // View all activity
