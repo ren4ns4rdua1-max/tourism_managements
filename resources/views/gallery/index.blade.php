@@ -75,7 +75,7 @@
 
                             <div class="flex items-center justify-between pt-3 mt-2 border-t border-gray-200">
                                 <span class="text-sm text-slate-600 font-medium">
-                                    {{ $gallery->user->name }}
+                                    {{ $gallery->user ? $gallery->user->name : 'Unknown User' }}
                                 </span>
 
                                 @if(auth()->id() === $gallery->user_id)

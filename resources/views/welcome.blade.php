@@ -60,7 +60,6 @@
             font-size: 16px;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.3s ease;
             border: 2px solid transparent;
             gap: 8px;
         }
@@ -70,19 +69,184 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.3);
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .lg\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .sm\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .md\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .gap-6 {
+            gap: 1.5rem;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-48 {
+            height: 12rem;
+        }
+
+        .object-cover {
+            object-fit: cover;
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .overflow-hidden {
+            overflow: hidden;
+        }
+
+
+
+        .p-6 {
+            padding: 1.5rem;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .text-xl {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .text-gray-600 {
+            color: #718096;
+        }
+
+        .text-gray-700 {
+            color: #4a5568;
+        }
+
+        .text-gray-900 {
+            color: #1a202c;
+        }
+
+        .text-blue-600 {
+            color: #2563eb;
+        }
+
+        .text-gray-500 {
+            color: #a0aec0;
+        }
+
+        .text-gray-400 {
+            color: #cbd5e0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-8 {
+            margin-top: 2rem;
+        }
+
+        .py-8 {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .col-span-3 {
+            grid-column: span 3 / span 3;
+        }
+
+        .col-span-4 {
+            grid-column: span 4 / span 4;
+        }
+
+        .bg-white {
+            background-color: #ffffff;
+        }
+
+        .bg-gray-200 {
+            background-color: #edf2f7;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
         }
 
         .btn-secondary {
             background: #00A859;
             color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #008749;
-            transform: translateY(-2px);
         }
 
         .btn-outline {
@@ -91,22 +255,11 @@
             color: #0066CC;
         }
 
-        .btn-outline:hover {
-            background: #0066CC;
-            color: white;
-        }
-
         .btn-cta {
             background: white;
             color: #0066CC;
             padding: 15px 30px;
             font-size: 1.1rem;
-        }
-
-        .btn-cta:hover {
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
         }
 
         /* Header Styles */
@@ -118,7 +271,6 @@
             background: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            transition: all 0.3s ease;
         }
 
         #header.scrolled {
@@ -167,11 +319,9 @@
             text-decoration: none;
             color: #4a5568;
             font-weight: 500;
-            transition: color 0.3s ease;
             position: relative;
         }
 
-        .nav-links a:hover,
         .nav-links a.active {
             color: #0066CC;
         }
@@ -210,7 +360,6 @@
             height: 100vh;
             background: white;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            transition: right 0.3s ease;
             z-index: 1001;
             padding: 30px;
             display: flex;
@@ -312,11 +461,6 @@
             width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .hero-image:hover img {
-            transform: scale(1.05);
         }
 
         /* Features Section */
@@ -331,12 +475,6 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
         .feature-icon {
@@ -526,11 +664,6 @@
         .footer-links a {
             color: #a0aec0;
             text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: white;
         }
 
         .social-icons {
@@ -549,11 +682,6 @@
             justify-content: center;
             color: white;
             text-decoration: none;
-            transition: background 0.3s ease;
-        }
-
-        .social-icons a:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
 
         .footer-column p i {
@@ -574,9 +702,164 @@
             text-decoration: none;
         }
 
-        .copyright a:hover {
-            color: white;
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
         }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-content {
+            padding: 30px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .modal-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .modal-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .modal-image-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        .modal-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .detail-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #1a202c;
+        }
+
+        .price-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0066CC;
+        }
+
+        .coordinates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .coordinate-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+
 
         /* Responsive Design */
         @media (max-width: 1024px) {
@@ -628,6 +911,14 @@
             .section {
                 padding: 60px 0;
             }
+            
+            .modal-container {
+                max-height: 85vh;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
@@ -647,6 +938,18 @@
                 flex-direction: column;
                 gap: 20px;
             }
+            
+            .modal-header {
+                padding: 15px 20px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .coordinates {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -664,6 +967,8 @@
             <nav class="desktop-nav">
                 <ul class="nav-links">
                     <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#destinations">Destinations</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#testimonials">Testimonials</a></li>
@@ -688,6 +993,8 @@
             </button>
             <ul class="nav-links">
                 <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#destinations">Destinations</a></li>
+                <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#features">Features</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="#testimonials">Testimonials</a></li>
@@ -770,6 +1077,100 @@
                     <p>Make data-driven decisions with comprehensive dashboards, performance metrics, and customizable reports that highlight key business insights.</p>
                     <button class="btn btn-outline feature-learn-more">Learn More</button>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section class="section destinations" id="destinations">
+        <div class="container">
+            <div class="section-title">
+                <h2>Popular Destinations</h2>
+                <p>Explore our featured destinations and plan your next adventure</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($destinations as $destination)
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        @if($destination->image)
+                            <img src="{{ asset('storage/' . $destination->image) }}" alt="{{ $destination->name }}" class="w-full h-48 object-cover">
+                        @else
+                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-400">No Image</span>
+                            </div>
+                        @endif
+
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">{{ $destination->name }}</h3>
+                            <p class="text-gray-600 mb-2">📍 {{ $destination->location }}</p>
+                            <p class="text-gray-700 mb-4">{{ Str::limit($destination->description, 100) }}</p>
+
+                            @if($destination->price)
+                                <p class="text-lg font-bold text-blue-600 mb-4">₱{{ number_format($destination->price, 2) }}</p>
+                            @endif
+
+                            <div class="flex gap-2">
+                                <button data-destination-id="{{ $destination->id }}"
+                                        data-destination-name="{{ $destination->name }}"
+                                        data-destination-location="{{ $destination->location }}"
+                                        data-destination-description="{{ $destination->description }}"
+                                        data-destination-price="{{ $destination->price ? '₱' . number_format($destination->price, 2) : '' }}"
+                                        data-destination-image="{{ $destination->image ? asset('storage/' . $destination->image) : '' }}"
+                                        data-destination-latitude="{{ $destination->latitude }}"
+                                        data-destination-longitude="{{ $destination->longitude }}"
+                                        class="btn btn-outline flex-1 text-center view-details-btn">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                                
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 text-center py-8 text-gray-500">
+                        No destinations available at the moment.
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="{{ route('destinations.index') }}" class="btn btn-outline">
+                    View All Destinations
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="section gallery" id="gallery">
+        <div class="container">
+            <div class="section-title">
+                <h2>Photo Gallery</h2>
+                <p>Discover the beauty of our destinations through stunning photography</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @forelse($galleries as $gallery)
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <img src="{{ asset('storage/' . $gallery->image_path) }}" alt="{{ $gallery->title }}" class="w-full h-48 object-cover">
+
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-900 text-sm mb-1">{{ $gallery->title }}</h3>
+                            @if($gallery->description)
+                                <p class="text-gray-600 text-xs">{{ Str::limit($gallery->description, 50) }}</p>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-4 text-center py-8 text-gray-500">
+                        No photos available at the moment.
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="{{ route('gallery.index') }}" class="btn btn-outline">
+                    View Full Gallery
+                </a>
             </div>
         </div>
     </section>
@@ -891,6 +1292,80 @@
             </div>
         </div>
     </footer>
+
+    <!-- Destination Details Modal -->
+    <div class="modal-overlay" id="destinationModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Destination Details</div>
+                <button class="modal-close" id="modalCloseBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                <div class="modal-grid">
+                    <!-- Image Section -->
+                    <div class="modal-image-container">
+                        <img id="modalImage" src="" alt="Destination Image" class="modal-image">
+                        <div id="modalImagePlaceholder" class="modal-image-placeholder" style="display: none;">
+                            <i class="fas fa-image"></i> No Image Available
+                        </div>
+                    </div>
+                    
+                    <!-- Details Section -->
+                    <div class="modal-details">
+                        <!-- Name and Location -->
+                        <div class="detail-section">
+                            <span class="detail-label">Destination</span>
+                            <h3 id="modalName" class="detail-value" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 5px;"></h3>
+                            <span class="detail-label">Location</span>
+                            <p id="modalLocation" class="detail-value" style="color: #0066CC;">
+                                <i class="fas fa-map-marker-alt"></i> <span id="modalLocationText"></span>
+                            </p>
+                        </div>
+                        
+                        <!-- Price -->
+                        <div class="detail-section">
+                            <span class="detail-label">Price</span>
+                            <div id="modalPrice" class="price-value">Not specified</div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="detail-section">
+                            <span class="detail-label">Description</span>
+                            <p id="modalDescription" class="detail-value"></p>
+                        </div>
+                        
+                        <!-- Coordinates -->
+                        <div class="detail-section">
+                            <span class="detail-label">Coordinates</span>
+                            <div class="coordinates">
+                                <div class="coordinate-item">
+                                    <span class="detail-label">Latitude</span>
+                                    <div id="modalLatitude" class="detail-value">N/A</div>
+                                </div>
+                                <div class="coordinate-item">
+                                    <span class="detail-label">Longitude</span>
+                                    <div id="modalLongitude" class="detail-value">N/A</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="modal-actions">
+                    <a href="{{ route('login') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-check"></i> Book Now
+                    </a>
+                    <button class="btn btn-outline" id="modalCloseBtn2">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Header scroll effect
@@ -1017,37 +1492,145 @@
             });
         });
 
-        // Lazy loading for images
-        const lazyLoadImages = () => {
-            const images = document.querySelectorAll('img');
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src || img.src;
-                        observer.unobserve(img);
-                    }
-                });
-            });
 
-            images.forEach(img => {
-                if (img.dataset.src) {
-                    imageObserver.observe(img);
-                }
-            });
-        };
 
-        // Initialize on DOM content loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            lazyLoadImages();
-            updateActiveLink();
+        // Destination Modal Functions
+        function openDestinationModal(id, name, location, description, price, image, latitude, longitude) {
+            // Set modal content
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalName').textContent = name;
+            document.getElementById('modalLocationText').textContent = location;
+            document.getElementById('modalDescription').textContent = description;
+            
+            // Handle price display
+            const priceElement = document.getElementById('modalPrice');
+            if (price && price !== '') {
+                priceElement.textContent = price;
+                priceElement.classList.add('price-value');
+            } else {
+                priceElement.textContent = 'Not specified';
+                priceElement.classList.remove('price-value');
+                priceElement.style.fontSize = '1rem';
+                priceElement.style.color = '#718096';
+            }
+            
+            // Handle image display
+            const modalImage = document.getElementById('modalImage');
+            const modalImagePlaceholder = document.getElementById('modalImagePlaceholder');
+            
+            if (image && image !== '') {
+                modalImage.src = image;
+                modalImage.alt = name;
+                modalImage.style.display = 'block';
+                modalImagePlaceholder.style.display = 'none';
+                
+                // Add error handling for modal image
+                modalImage.onerror = function() {
+                    this.style.display = 'none';
+                    modalImagePlaceholder.style.display = 'flex';
+                };
+            } else {
+                modalImage.style.display = 'none';
+                modalImagePlaceholder.style.display = 'flex';
+            }
+            
+            // Set coordinates
+            document.getElementById('modalLatitude').textContent = latitude || 'N/A';
+            document.getElementById('modalLongitude').textContent = longitude || 'N/A';
+            
+            // Show modal
+            const modal = document.getElementById('destinationModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Focus for accessibility
+            setTimeout(() => {
+                modal.querySelector('.modal-close').focus();
+            }, 100);
+        }
+
+        function closeDestinationModal() {
+            const modal = document.getElementById('destinationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
+            // Return focus to the button that opened the modal
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.classList.contains('view-details-btn')) {
+                setTimeout(() => {
+                    activeElement.focus();
+                }, 100);
+            }
+        }
+
+        // Modal event listeners
+        document.getElementById('modalCloseBtn').addEventListener('click', closeDestinationModal);
+        document.getElementById('modalCloseBtn2').addEventListener('click', closeDestinationModal);
+
+        // Close modal when clicking outside
+        document.getElementById('destinationModal').addEventListener('click', (e) => {
+            if (e.target.id === 'destinationModal') {
+                closeDestinationModal();
+            }
         });
 
-        // Keyboard accessibility
+        // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('destinationModal').classList.contains('active')) {
+                closeDestinationModal();
+            }
             if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
                 closeMobileMenu();
             }
+        });
+
+        // Add event listeners to View Details buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = button.getAttribute('data-destination-id');
+                    const name = button.getAttribute('data-destination-name');
+                    const location = button.getAttribute('data-destination-location');
+                    const description = button.getAttribute('data-destination-description');
+                    const price = button.getAttribute('data-destination-price');
+                    const image = button.getAttribute('data-destination-image');
+                    const latitude = button.getAttribute('data-destination-latitude');
+                    const longitude = button.getAttribute('data-destination-longitude');
+
+                    openDestinationModal(id, name, location, description, price, image, latitude, longitude);
+                });
+                
+                // Add keyboard support
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        button.click();
+                    }
+                });
+            });
+            
+            // Initialize active link
+            updateActiveLink();
+        });
+
+        // Prevent body scroll when modal is open
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    const modal = document.getElementById('destinationModal');
+                    if (modal.classList.contains('active')) {
+                        document.body.style.overflow = 'hidden';
+                    } else if (!mobileMenu.classList.contains('active')) {
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('destinationModal'), {
+            attributes: true,
+            attributeFilter: ['class']
         });
     </script>
 </body>

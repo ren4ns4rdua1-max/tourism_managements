@@ -1,725 +1,768 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Dashboard') }}
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Welcome back, {{ Auth::user()->name }}</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <svg id="darkModeIcon" class="h-5 w-5 text-gray-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                    <svg id="lightModeIcon" class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </button>
-                <div class="relative">
-                    <button id="notificationBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
-                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                    </button>
-                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                        <div class="px-4 py-3 border-b border-gray-200">
-                            <h4 class="font-semibold text-gray-900">Notifications</h4>
-                        </div>
-                        <div class="max-h-64 overflow-y-auto">
-                            <a href="#" class="flex items-start px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
-                                <div class="flex-shrink-0 bg-blue-100 p-2 rounded-lg">
-                                    <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+@php
+    use App\Models\User;
+    use App\Models\Destination;
+    use App\Models\Gallery;
+    use Illuminate\Support\Facades\DB;
+
+    // Core stats
+    $totalUsers = User::count();
+    $totalDestinations = Destination::where('is_active', true)->count();
+    $totalGallery = Gallery::count();
+    $activeSessions = 1249;
+
+    // Get data for charts
+    $usersByMonth = User::select(
+        DB::raw('MONTH(created_at) as month'),
+        DB::raw('COUNT(*) as count')
+    )
+    ->whereYear('created_at', date('Y'))
+    ->groupBy('month')
+    ->orderBy('month')
+    ->get()
+    ->pluck('count', 'month');
+
+    $destinationsByStatus = [
+        'active' => Destination::where('is_active', true)->count(),
+        'inactive' => Destination::where('is_active', false)->count(),
+    ];
+
+    $stats = [
+        [
+            'title' => 'Total Users',
+            'value' => $totalUsers,
+            'change' => '+12.5%',
+            'changeType' => 'increase',
+            'icon' => 'users',
+            'gradient' => 'from-violet-500 via-purple-500 to-fuchsia-500',
+            'icon_bg' => 'bg-gradient-to-br from-violet-500 to-purple-600',
+            'bg_color' => 'bg-white dark:bg-gray-800',
+            'border_color' => 'border-violet-300 dark:border-violet-700',
+            'text_color' => 'text-violet-600 dark:text-violet-400',
+            'trend' => 'up'
+        ],
+        [
+            'title' => 'Active Destinations',
+            'value' => $totalDestinations,
+            'change' => '+8.2%',
+            'changeType' => 'increase',
+            'icon' => 'map-pin',
+            'gradient' => 'from-emerald-500 via-teal-500 to-cyan-500',
+            'icon_bg' => 'bg-gradient-to-br from-emerald-500 to-teal-600',
+            'bg_color' => 'bg-white dark:bg-gray-800',
+            'border_color' => 'border-emerald-300 dark:border-emerald-700',
+            'text_color' => 'text-emerald-600 dark:text-emerald-400',
+            'trend' => 'up'
+        ],
+        [
+            'title' => 'Gallery Items',
+            'value' => $totalGallery,
+            'change' => '+15.3%',
+            'changeType' => 'increase',
+            'icon' => 'camera',
+            'gradient' => 'from-rose-500 via-pink-500 to-fuchsia-500',
+            'icon_bg' => 'bg-gradient-to-br from-rose-500 to-pink-600',
+            'bg_color' => 'bg-white dark:bg-gray-800',
+            'border_color' => 'border-rose-300 dark:border-rose-700',
+            'text_color' => 'text-rose-600 dark:text-rose-400',
+            'trend' => 'up'
+        ],
+        [
+            'title' => 'Active Sessions',
+            'value' => $activeSessions,
+            'change' => '+23.1%',
+            'changeType' => 'increase',
+            'icon' => 'eye',
+            'gradient' => 'from-amber-500 via-orange-500 to-red-500',
+            'icon_bg' => 'bg-gradient-to-br from-amber-500 to-orange-600',
+            'bg_color' => 'bg-white dark:bg-gray-800',
+            'border_color' => 'border-amber-300 dark:border-amber-700',
+            'text_color' => 'text-amber-600 dark:text-amber-400',
+            'trend' => 'up'
+        ],
+    ];
+
+    // Generate chart data
+    $monthlyUserData = [];
+    for ($i = 1; $i <= 12; $i++) {
+        $monthlyUserData[] = $usersByMonth[$i] ?? 0;
+    }
+
+    $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+@endphp
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-100 dark:bg-gray-900">
+    <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex lg:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+                <!-- Logo/Brand Section -->
+                <div class="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Tourism Admin</h1>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="flex-1 overflow-y-auto py-4">
+                    <div class="px-4 space-y-2">
+                        <a href="{{ route('dashboard') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <a href="{{ route('gallery.index') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Gallery</span>
+                        </a>
+
+                        <a href="{{ route('destinations.index') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>Destination</span>
+                        </a>
+
+                        <a href="{{ route('dashboard') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Booking</span>
+                        </a>
+
+                        <a href="{{ route('users.index') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            <span>Users</span>
+                        </a>
+
+                        <a href="{{ route('dashboard') }}" 
+                           class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                            </svg>
+                            <span>Feedback</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <!-- User Profile Section at Bottom -->
+                <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+                    <div x-data="{ dropdownOpen: false }" class="relative">
+                        <button @click="dropdownOpen = !dropdownOpen" 
+                                class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-medium shadow-lg">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
                                 </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-900">New user registration</p>
-                                    <p class="text-xs text-gray-500">2 minutes ago</p>
+                            </div>
+                            <div class="ml-3 flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{{ Auth::user()->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                            </div>
+                            <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="dropdownOpen" 
+                             @click.away="dropdownOpen = false"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+                             style="display: none;">
+                            <a href="{{ route('profile.edit') }}" 
+                               class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    Profile
                                 </div>
                             </a>
-                            <a href="#" class="flex items-start px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
-                                <div class="flex-shrink-0 bg-green-100 p-2 rounded-lg">
-                                    <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-gray-900">Order #7841 completed</p>
-                                    <p class="text-xs text-gray-500">15 minutes ago</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="px-4 py-3 border-t border-gray-200">
-                            <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">View all notifications</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" 
+                                        class="block w-full text-left px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        Log Out
+                                    </div>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </x-slot>
+        </aside>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Welcome Banner -->
-            <div class="mb-8">
-                <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 overflow-hidden shadow-lg sm:rounded-2xl relative">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
-                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
-                    <div class="relative p-8 text-white">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between">
-                            <div class="mb-6 md:mb-0">
-                                <h1 class="text-3xl md:text-4xl font-bold mb-3">
+        <!-- Mobile Menu Button -->
+        <div class="lg:hidden fixed top-4 left-4 z-50">
+            <button @click="sidebarOpen = !sidebarOpen" 
+                    class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white focus:outline-none border border-gray-200 dark:border-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path :class="{'hidden': sidebarOpen, 'inline-flex': !sidebarOpen}" 
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4 6h16M4 12h16M4 18h16"></path>
+                    <path :class="{'hidden': !sidebarOpen, 'inline-flex': sidebarOpen}" 
+                          class="hidden"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen" 
+             @click="sidebarOpen = false"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+             style="display: none;">
+        </div>
+
+        <!-- Mobile Sidebar -->
+        <aside x-show="sidebarOpen"
+               x-transition:enter="transition ease-in-out duration-300 transform"
+               x-transition:enter-start="-translate-x-full"
+               x-transition:enter-end="translate-x-0"
+               x-transition:leave="transition ease-in-out duration-300 transform"
+               x-transition:leave-start="translate-x-0"
+               x-transition:leave-end="-translate-x-full"
+               class="lg:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg z-50 border-r border-gray-200 dark:border-gray-700"
+               style="display: none;">
+            <!-- Same content as desktop sidebar -->
+            <div class="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
+                <h1 class="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Tourism Admin</h1>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-4 h-[calc(100vh-8rem)]">
+                <div class="px-4 space-y-2">
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ route('gallery.index') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Gallery</span>
+                    </a>
+                    <a href="{{ route('destinations.index') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Destination</span>
+                    </a>
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Booking</span>
+                    </a>
+                    <a href="{{ route('users.index') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                        </svg>
+                        <span>Feedback</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+            <!-- Header with Dark Mode Toggle -->
+            <div class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+                <div class="px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex justify-between items-center">
+                        <div class="pl-12 lg:pl-0">
+                            <h2 class="font-bold text-3xl text-gray-900 dark:text-white">
+                                Dashboard
+                            </h2>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                                Welcome back, <span class="font-bold text-gray-900 dark:text-white">{{ Auth::user()->name }}</span>
+                            </p>
+                        </div>
+
+                        <button id="darkModeToggle" onclick="toggleDarkMode()"
+                            class="group relative p-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+                                   hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-lg hover:shadow-violet-500/20 
+                                   dark:hover:shadow-violet-500/10 transition-all duration-300">
+                            <svg id="lightModeIcon" class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            <svg id="darkModeIcon" class="w-5 h-5 text-violet-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                            </svg>
+                            <span class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                Toggle theme
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="py-8">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+                    <!-- Welcome Banner with Enhanced Design -->
+                    <div class="relative bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600
+                                rounded-2xl shadow-2xl shadow-purple-500/20 p-8 sm:p-10 text-white overflow-hidden
+                                border border-white/10">
+                        <!-- Animated background patterns -->
+                        <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl -translate-y-32 translate-x-32 animate-pulse"></div>
+                        <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-fuchsia-500/20 to-transparent rounded-full blur-2xl translate-y-20 -translate-x-20"></div>
+                        
+                        <!-- Decorative elements -->
+                        <div class="absolute top-10 right-20 w-20 h-20 border-4 border-white/20 rounded-full"></div>
+                        <div class="absolute bottom-10 right-40 w-12 h-12 border-4 border-white/20 rounded-lg rotate-45"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                </div>
+                                <h1 class="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
                                     Welcome back, {{ Auth::user()->name }}! 👋
                                 </h1>
-                                <p class="text-blue-100 opacity-95 text-lg">
-                                    Here's what's happening with your account today.
-                                </p>
                             </div>
-                            <div>
-                                <div class="inline-flex items-center bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl">
-                                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <p class="text-purple-100 mt-3 text-base sm:text-lg font-medium">
+                                Here's what's happening with your tourism platform today
+                            </p>
+                            <div class="mt-6 flex flex-wrap gap-4">
+                                <div class="inline-flex items-center bg-white/15 backdrop-blur-md px-5 py-3 rounded-xl border border-white/30 shadow-lg">
+                                    <svg class="w-5 h-5 mr-2 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
-                                    <span class="font-medium">{{ now()->format('l, F j, Y') }}</span>
+                                    <span class="text-sm sm:text-base font-semibold">{{ now()->format('l, F j, Y') }}</span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="mt-8 flex flex-wrap gap-4">
-                            <div class="flex items-center">
-                                <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                                <span class="text-sm">System is running smoothly</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                                <span class="text-sm">Last updated: Today at {{ now()->format('g:i A') }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                @php
-                    $stats = [
-                        [
-                            'title' => 'Total Users',
-                            'value' => '2,847',
-                            'change' => '+12.5%',
-                            'changeType' => 'increase',
-                            'icon' => 'users',
-                            'color' => 'blue',
-                            'trend' => 'up'
-                        ],
-                        [
-                            'title' => 'Revenue',
-                            'value' => '$24,580',
-                            'change' => '+8.2%',
-                            'changeType' => 'increase',
-                            'icon' => 'currency-dollar',
-                            'color' => 'green',
-                            'trend' => 'up'
-                        ],
-                        [
-                            'title' => 'Conversion Rate',
-                            'value' => '3.24%',
-                            'change' => '-0.5%',
-                            'changeType' => 'decrease',
-                            'icon' => 'trending-up',
-                            'color' => 'purple',
-                            'trend' => 'down'
-                        ],
-                        [
-                            'title' => 'Active Sessions',
-                            'value' => '1,249',
-                            'change' => '+23.1%',
-                            'changeType' => 'increase',
-                            'icon' => 'eye',
-                            'color' => 'orange',
-                            'trend' => 'up'
-                        ]
-                    ];
-                @endphp
-
-                @foreach($stats as $stat)
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex-shrink-0 bg-{{ $stat['color'] }}-100 dark:bg-{{ $stat['color'] }}-900/30 p-3 rounded-xl">
-                                @if($stat['icon'] === 'users')
-                                <svg class="h-7 w-7 text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.67 3.913a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                @elseif($stat['icon'] === 'currency-dollar')
-                                <svg class="h-7 w-7 text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                @elseif($stat['icon'] === 'trending-up')
-                                <svg class="h-7 w-7 text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                </svg>
-                                @elseif($stat['icon'] === 'eye')
-                                <svg class="h-7 w-7 text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                @endif
-                            </div>
-                            <div class="text-right">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $stat['changeType'] === 'increase' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                    @if($stat['trend'] === 'up')
-                                    <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
-                                        <path d="M2.5 0L4 1.5 5.5 0 5.5 2 8 2 8 4.5 6.5 6 5 4.5 3.5 6 2 4.5 2 2z" />
+                                <div class="inline-flex items-center bg-white/15 backdrop-blur-md px-5 py-3 rounded-xl border border-white/30 shadow-lg">
+                                    <svg class="w-5 h-5 mr-2 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
-                                    @else
-                                    <svg class="-ml-0.5 mr-1.5 h-2 w-2" fill="currentColor" viewBox="0 0 8 8">
-                                        <path d="M5.5 8L4 6.5 2.5 8 2.5 6 0 6 0 3.5 1.5 2 3 3.5 4.5 2 6 3.5 6 6z" />
-                                    </svg>
-                                    @endif
-                                    {{ $stat['change'] }}
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ $stat['title'] }}</p>
-                            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ $stat['value'] }}</p>
-                        </div>
-                        <div class="mt-6">
-                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                <span>Compared to last month</span>
-                                <div class="ml-auto">
-                                    <button onclick="viewStatDetails('{{ $stat['title'] }}')" class="text-{{ $stat['color'] }}-600 dark:text-{{ $stat['color'] }}-400 hover:text-{{ $stat['color'] }}-800 dark:hover:text-{{ $stat['color'] }}-300 font-medium group-hover:underline">
-                                        View details
-                                    </button>
+                                    <span class="text-sm sm:text-base font-semibold">{{ now()->format('g:i A') }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                @endforeach
-            </div>
 
-            <!-- Charts and Tables Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                <!-- Revenue Chart -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-gray-700">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                        Revenue Overview
-                                    </h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Monthly revenue performance</p>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button id="btn-7d" class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200" onclick="changeTimeRange('7d')">
-                                        Last 7 days
-                                    </button>
-                                    <button id="btn-30d" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('30d')">
-                                        Last 30 days
-                                    </button>
-                                    <button id="btn-ytd" class="px-4 py-2 text-sm rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" onclick="changeTimeRange('ytd')">
-                                        Year to date
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <!-- Chart.js Revenue Chart -->
-                            <div class="h-80 relative">
-                                <canvas id="revenueChart" width="400" height="200"></canvas>
-                            </div>
-                            
-                            <!-- Chart Summary -->
-                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
-                                        <p class="text-xl font-bold text-gray-900 dark:text-white mt-1">$24,580</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Avg. Order Value</p>
-                                        <p class="text-xl font-bold text-gray-900 dark:text-white mt-1">$1,245</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Growth Rate</p>
-                                        <p class="text-xl font-bold text-green-600 dark:text-green-400 mt-1">+8.2%</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Target</p>
-                                        <p class="text-xl font-bold text-gray-900 dark:text-white mt-1">$30,000</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-gray-700 h-full flex flex-col">
-                        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Recent Activity
-                                </h3>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Live</span>
-                            </div>
-                        </div>
-                        <div class="flex-1 p-6 overflow-y-auto">
-                            <div class="space-y-6">
-                                @php
-                                    $activities = [
-                                        ['user' => 'John Doe', 'action' => 'signed up for premium', 'time' => '2 min ago', 'color' => 'blue', 'icon' => 'user-add'],
-                                        ['user' => 'Sarah Smith', 'action' => 'upgraded to enterprise', 'time' => '15 min ago', 'color' => 'green', 'icon' => 'arrow-up'],
-                                        ['user' => 'Michael Chen', 'action' => 'completed a project', 'time' => '1 hour ago', 'color' => 'purple', 'icon' => 'check-circle'],
-                                        ['user' => 'Emma Wilson', 'action' => 'left a 5-star review', 'time' => '2 hours ago', 'color' => 'yellow', 'icon' => 'star'],
-                                        ['user' => 'Alex Johnson', 'action' => 'renewed subscription', 'time' => '5 hours ago', 'color' => 'indigo', 'icon' => 'refresh'],
-                                        ['user' => 'Lisa Brown', 'action' => 'downloaded report', 'time' => 'Yesterday', 'color' => 'pink', 'icon' => 'download'],
-                                    ];
-                                @endphp
+                    <!-- Enhanced Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        @foreach($stats as $stat)
+                            <div class="relative group {{ $stat['bg_color'] }} 
+                                        border-2 {{ $stat['border_color'] }}
+                                        rounded-2xl shadow-lg hover:shadow-2xl 
+                                        transition-all duration-500 p-6
+                                        hover:-translate-y-2 overflow-hidden">
                                 
-                                @foreach($activities as $activity)
-                                <div class="flex items-start group">
-                                    <div class="flex-shrink-0 relative">
-                                        <div class="w-10 h-10 bg-{{ $activity['color'] }}-100 dark:bg-{{ $activity['color'] }}-900/30 rounded-lg flex items-center justify-center">
-                                            <svg class="h-5 w-5 text-{{ $activity['color'] }}-600 dark:text-{{ $activity['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                @if($activity['icon'] === 'user-add')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                                @elseif($activity['icon'] === 'arrow-up')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                @elseif($activity['icon'] === 'check-circle')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                @elseif($activity['icon'] === 'star')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                                @elseif($activity['icon'] === 'refresh')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                @elseif($activity['icon'] === 'download')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                @endif
+                                <div class="flex justify-between items-start mb-4 relative z-10">
+                                    <div>
+                                        <span class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
+                                            {{ $stat['title'] }}
+                                        </span>
+                                        <p class="text-4xl font-black text-gray-900 dark:text-white mt-2 tracking-tight">
+                                            {{ number_format($stat['value']) }}
+                                        </p>
+                                    </div>
+                                    <div class="p-3.5 rounded-xl {{ $stat['icon_bg'] }} text-white shadow-lg 
+                                                group-hover:scale-110 transition-transform duration-300">
+                                        @if($stat['icon'] === 'users')
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13 0h-1m-10 0a4 4 0 100-8 4 4 0 000 8z"/>
                                             </svg>
-                                        </div>
-                                        @if($loop->first)
-                                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
-                                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                        @elseif($stat['icon'] === 'map-pin')
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        @elseif($stat['icon'] === 'camera')
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
                                         @endif
                                     </div>
-                                    <div class="ml-4 flex-1">
-                                        <p class="text-sm text-gray-900 dark:text-white">
-                                            <span class="font-semibold">{{ $activity['user'] }}</span>
-                                            {{ $activity['action'] }}
-                                        </p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $activity['time'] }}</p>
-                                    </div>
-                                    <button class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                        </svg>
-                                    </button>
                                 </div>
-                                @endforeach
+
+                                <div class="flex items-center mt-4 relative z-10">
+                                    <div class="flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                        </svg>
+                                        <span class="text-sm font-bold">{{ $stat['change'] }}</span>
+                                    </div>
+                                    <span class="text-sm text-gray-800 dark:text-gray-200 ml-3 font-semibold">
+                                        vs last month
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Charts Section with Enhanced Design -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- User Growth Chart -->
+                        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700
+                                    rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6">
+                                <div class="mb-4 sm:mb-0">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        User Growth Trend
+                                    </h3>
+                                    <p class="text-sm text-gray-800 dark:text-gray-200 mt-1 font-medium">Monthly user registrations this year</p>
+                                </div>
+                                <div class="text-left sm:text-right bg-white dark:bg-gray-700 px-4 py-3 rounded-xl border-2 border-violet-300 dark:border-violet-700 shadow-md">
+                                    <p class="text-3xl font-black text-gray-900 dark:text-white">{{ number_format($totalUsers) }}</p>
+                                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Total Users</p>
+                                </div>
                             </div>
                             
-                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <button onclick="viewAllActivity()" class="w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
-                                    View all activity
-                                </button>
+                            <div class="h-64 bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-900/50 dark:to-transparent rounded-xl p-4">
+                                <div class="flex items-end h-48 space-x-2">
+                                    @foreach($monthlyUserData as $index => $count)
+                                        <div class="flex flex-col items-center flex-1 group cursor-pointer">
+                                            @php
+                                                $maxValue = max(array_merge($monthlyUserData, [1]));
+                                                $height = max(10, ($count / $maxValue) * 100);
+                                                $colors = ['from-violet-400 to-purple-600', 'from-purple-400 to-fuchsia-600', 'from-fuchsia-400 to-pink-600'];
+                                                $colorGradient = $colors[$index % 3];
+                                            @endphp
+                                            <div class="relative w-full">
+                                                <div 
+                                                    class="w-full bg-gradient-to-t {{ $colorGradient }} 
+                                                           rounded-t-xl transition-all duration-500 hover:opacity-80
+                                                           group-hover:shadow-xl shadow-purple-500/50"
+                                                    style="height: {{ $height }}%"
+                                                ></div>
+                                            </div>
+                                            <div class="text-xs font-bold text-gray-800 dark:text-gray-200 mt-2">{{ $monthNames[$index] }}</div>
+                                            <div class="text-xs font-bold text-white dark:text-gray-900 mt-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 dark:bg-white px-2 py-1 rounded shadow-lg">
+                                                {{ $count }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Destinations Status Chart -->
+                        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700
+                                    rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                                Destinations Overview
+                            </h3>
+                            
+                            <div class="flex flex-col lg:flex-row items-center justify-center h-64">
+                                <div class="relative w-48 h-48 mb-6 lg:mb-0 lg:mr-8">
+                                    @php
+                                        $total = $destinationsByStatus['active'] + $destinationsByStatus['inactive'];
+                                        $activePercentage = $total > 0 ? ($destinationsByStatus['active'] / $total) * 100 : 0;
+                                    @endphp
+                                    <!-- Enhanced donut chart -->
+                                    <svg class="transform -rotate-90 w-48 h-48" viewBox="0 0 100 100">
+                                        <!-- Background circle -->
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" stroke-width="12" class="dark:stroke-gray-700"/>
+                                        <!-- Active percentage arc -->
+                                        <circle cx="50" cy="50" r="40" fill="none" 
+                                                stroke="url(#gradient-active)" 
+                                                stroke-width="12" 
+                                                stroke-dasharray="{{ $activePercentage * 2.51 }} 251"
+                                                stroke-linecap="round"
+                                                class="transition-all duration-1000"/>
+                                        <defs>
+                                            <linearGradient id="gradient-active" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#10b981"/>
+                                                <stop offset="100%" style="stop-color:#14b8a6"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="text-center">
+                                            <p class="text-4xl font-black text-gray-900 dark:text-white">
+                                                {{ round($activePercentage) }}%
+                                            </p>
+                                            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">Active</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center p-4 rounded-xl bg-white dark:bg-gray-700 border-2 border-emerald-300 dark:border-emerald-700 shadow-md hover:shadow-lg transition-shadow">
+                                        <div class="w-4 h-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mr-3 shadow-lg"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-900 dark:text-white">Active Destinations</p>
+                                            <p class="text-xs text-gray-800 dark:text-gray-200 font-semibold">Ready for visitors</p>
+                                        </div>
+                                        <p class="text-2xl font-black text-gray-900 dark:text-white">{{ $destinationsByStatus['active'] }}</p>
+                                    </div>
+                                    <div class="flex items-center p-4 rounded-xl bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 shadow-md hover:shadow-lg transition-shadow">
+                                        <div class="w-4 h-4 rounded-full bg-gray-500 dark:bg-gray-400 mr-3 shadow-lg"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-900 dark:text-white">Inactive</p>
+                                            <p class="text-xs text-gray-800 dark:text-gray-200 font-semibold">Under maintenance</p>
+                                        </div>
+                                        <p class="text-2xl font-black text-gray-900 dark:text-white">{{ $destinationsByStatus['inactive'] }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Bottom Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Quick Actions -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-gray-700">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Quick Actions
-                        </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Frequently used actions</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            @php
-                                $actions = [
-                                    ['title' => 'Add User', 'icon' => 'user-add', 'color' => 'blue', 'url' =>route('users.index')],
-                                    ['title' => 'Upload Photo', 'icon' => 'camera', 'color' => 'green', 'url' => route('gallery.create')],
-                                    ['title' => 'Create Report', 'icon' => 'document-text', 'color' => 'purple', 'url' => '#'],
-                                    ['title' => 'Manage Team', 'icon' => 'users', 'color' => 'orange', 'url' => '#'],
-                                    ['title' => 'Settings', 'icon' => 'cog', 'color' => 'indigo', 'url' => '#'],
-                                    ['title' => 'Analytics', 'icon' => 'chart-bar', 'color' => 'pink', 'url' => '#'],
-                                    ['title' => 'Messages', 'icon' => 'mail', 'color' => 'teal', 'url' => '#'],
-                                    ['title' => 'Calendar', 'icon' => 'calendar', 'color' => 'red', 'url' => '#'],
-                                ];
-                            @endphp
-                            
-                            @foreach($actions as $action)
-                            <a href="{{ $action['url'] }}" class="group">
-                                <div class="relative p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-{{ $action['color'] }}-300 dark:hover:border-{{ $action['color'] }}-500 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                                    <div class="flex flex-col items-center text-center">
-                                        <div class="p-3 bg-{{ $action['color'] }}-100 dark:bg-{{ $action['color'] }}-900/30 rounded-lg group-hover:bg-{{ $action['color'] }}-200 dark:group-hover:bg-{{ $action['color'] }}-900/50 transition-colors mb-3">
-                                            <svg class="h-6 w-6 text-{{ $action['color'] }}-600 dark:text-{{ $action['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                @if($action['icon'] === 'user-add')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                                @elseif($action['icon'] === 'camera')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                @elseif($action['icon'] === 'document-text')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                @elseif($action['icon'] === 'users')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.67 3.913a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                                @elseif($action['icon'] === 'cog')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                @elseif($action['icon'] === 'chart-bar')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                                @elseif($action['icon'] === 'mail')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                @elseif($action['icon'] === 'calendar')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                @elseif($action['icon'] === 'question-mark-circle')
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                @endif
+                    <!-- Recent Activity & Quick Actions with Enhanced Design -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Recent Activity -->
+                        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700
+                                    rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                    Recent Activity
+                                </h3>
+                                <span class="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-bold rounded-full">
+                                    Live
+                                </span>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center p-4 hover:bg-blue-50 dark:hover:bg-gray-700
+                                            rounded-xl transition-all duration-300 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-700 group">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 ml-4">
+                                        <p class="font-bold text-gray-900 dark:text-white">New user registered</p>
+                                        <p class="text-sm text-gray-800 dark:text-gray-200 font-semibold">2 hours ago</p>
+                                    </div>
+                                    <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full">+1</span>
+                                </div>
+
+                                <div class="flex items-center p-4 hover:bg-green-50 dark:hover:bg-gray-700
+                                            rounded-xl transition-all duration-300 border-2 border-transparent hover:border-green-300 dark:hover:border-green-700 group">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 ml-4">
+                                        <p class="font-bold text-gray-900 dark:text-white">Destination updated</p>
+                                        <p class="text-sm text-gray-800 dark:text-gray-200 font-semibold">Yesterday, 4:30 PM</p>
+                                    </div>
+                                    <span class="text-sm font-black text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full">Updated</span>
+                                </div>
+
+                                <div class="flex items-center p-4 hover:bg-purple-50 dark:hover:bg-gray-700
+                                            rounded-xl transition-all duration-300 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-700 group">
+                                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 ml-4">
+                                        <p class="font-bold text-gray-900 dark:text-white">Gallery photo uploaded</p>
+                                        <p class="text-sm text-gray-800 dark:text-gray-200 font-semibold">Yesterday, 11:20 AM</p>
+                                    </div>
+                                    <span class="text-sm font-black text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">+5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700
+                                    rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                    Quick Actions
+                                </h3>
+                                <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <a href="{{ route('users.index') }}"
+                                    class="group relative p-5 bg-white dark:bg-gray-800
+                                           border-2 border-violet-300 dark:border-violet-700 rounded-xl hover:shadow-xl hover:shadow-violet-500/20
+                                           transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="flex flex-col items-center text-center relative z-10">
+                                        <div class="p-3.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                                             </svg>
                                         </div>
-                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-{{ $action['color'] }}-600 dark:group-hover:text-{{ $action['color'] }}-400 transition-colors">
-                                            {{ $action['title'] }}
-                                        </span>
+                                        <span class="font-black text-base text-gray-900 dark:text-white">Manage Users</span>
+                                        <span class="text-xs text-gray-800 dark:text-gray-200 font-semibold mt-1">Add or edit users</span>
                                     </div>
-                                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <svg class="h-4 w-4 text-{{ $action['color'] }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
+                                </a>
+                                
+                                <a href="{{ route('gallery.create') }}"
+                                    class="group relative p-5 bg-white dark:bg-gray-800
+                                           border-2 border-rose-300 dark:border-rose-700 rounded-xl hover:shadow-xl hover:shadow-rose-500/20
+                                           transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="flex flex-col items-center text-center relative z-10">
+                                        <div class="p-3.5 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-black text-base text-gray-900 dark:text-white">Upload Photos</span>
+                                        <span class="text-xs text-gray-800 dark:text-gray-200 font-semibold mt-1">Add to gallery</span>
                                     </div>
-                                </div>
-                            </a>
-                            @endforeach
+                                </a>
+                                
+                                <a href="{{ route('destinations.index') }}"
+                                    class="group relative p-5 bg-white dark:bg-gray-800
+                                           border-2 border-emerald-300 dark:border-emerald-700 rounded-xl hover:shadow-xl hover:shadow-emerald-500/20
+                                           transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="flex flex-col items-center text-center relative z-10">
+                                        <div class="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-black text-base text-gray-900 dark:text-white">Destinations</span>
+                                        <span class="text-xs text-gray-800 dark:text-gray-200 font-semibold mt-1">Manage locations</span>
+                                    </div>
+                                </a>
+                                
+                                <a href="#"
+                                    class="group relative p-5 bg-white dark:bg-gray-800
+                                           border-2 border-amber-300 dark:border-amber-700 rounded-xl hover:shadow-xl hover:shadow-amber-500/20
+                                           transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                    <div class="flex flex-col items-center text-center relative z-10">
+                                        <div class="p-3.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white mb-3 shadow-lg group-hover:scale-110 transition-transform">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-black text-base text-gray-900 dark:text-white">Settings</span>
+                                        <span class="text-xs text-gray-800 dark:text-gray-200 font-semibold mt-1">Configuration</span>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Recent Orders -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-200 dark:border-gray-700">
-                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Recent Orders
-                                </h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Track and manage customer orders</p>
-                            </div>
-                            <button onclick="refreshOrders()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                <svg class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-900">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Order ID
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Customer
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th scope="col" class="px 6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Amount
-                                        </th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Action
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @php
-                                        $orders = [
-                                            ['id' => '#ORD-7841', 'customer' => 'John Carter', 'status' => 'Delivered', 'amount' => '$1,249', 'date' => 'Today, 10:24 AM'],
-                                            ['id' => '#ORD-7840', 'customer' => 'Sophie Moore', 'status' => 'Processing', 'amount' => '$890', 'date' => 'Yesterday, 3:45 PM'],
-                                            ['id' => '#ORD-7839', 'customer' => 'Alex Turner', 'status' => 'Pending', 'amount' => '$2,150', 'date' => 'Oct 12, 9:15 AM'],
-                                            ['id' => '#ORD-7838', 'customer' => 'Mia Garcia', 'status' => 'Delivered', 'amount' => '$749', 'date' => 'Oct 10, 2:30 PM'],
-                                            ['id' => '#ORD-7837', 'customer' => 'Robert Brown', 'status' => 'Cancelled', 'amount' => '$1,399', 'date' => 'Oct 8, 11:20 AM'],
-                                        ];
-                                    @endphp
-                                    
-                                    @foreach($orders as $order)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150 group">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ $order['id'] }}</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order['date'] }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        {{ substr($order['customer'], 0, 1) }}
-                                                    </span>
-                                                </div>
-                                                <div class="ml-3">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $order['customer'] }}</div>
-                                                    <div class="text-xs text-gray-500 dark:text-gray-400">Customer</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @php
-                                                $statusConfig = [
-                                                    'Delivered' => ['color' => 'green', 'icon' => 'check'],
-                                                    'Processing' => ['color' => 'blue', 'icon' => 'refresh'],
-                                                    'Pending' => ['color' => 'yellow', 'icon' => 'clock'],
-                                                    'Cancelled' => ['color' => 'red', 'icon' => 'x'],
-                                                ];
-                                            @endphp
-                                            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-{{ $statusConfig[$order['status']]['color'] }}-100 dark:bg-{{ $statusConfig[$order['status']]['color'] }}-900/30 text-{{ $statusConfig[$order['status']]['color'] }}-800 dark:text-{{ $statusConfig[$order['status']]['color'] }}-400">
-                                                <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    @if($statusConfig[$order['status']]['icon'] === 'check')
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                    @elseif($statusConfig[$order['status']]['icon'] === 'refresh')
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    @elseif($statusConfig[$order['status']]['icon'] === 'clock')
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    @elseif($statusConfig[$order['status']]['icon'] === 'x')
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    @endif
-                                                </svg>
-                                                {{ $order['status'] }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white">
-                                            {{ $order['amount'] }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onclick="viewOrder('{{ $order['id'] }}')" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                                                    <svg class="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </button>
-                                                <button onclick="editOrder('{{ $order['id'] }}')" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                                                    <svg class="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-gray-600 dark:text-gray-400">
-                                Showing 5 of 124 orders
-                            </div>
-                            <a href="#" class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
-                                View all orders
-                                <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-        
-        .dark ::-webkit-scrollbar-track {
-            background: #374151;
-        }
-        
-        .dark ::-webkit-scrollbar-thumb {
-            background: #6b7280;
-        }
-        
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-        
-        /* Animation for pulse */
-        @keyframes pulse-ring {
-            0% {
-                transform: scale(0.8);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
-        }
-        
-        .animate-ping-ring {
-            animation: pulse-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-        
-        /* Smooth transitions */
-        .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 300ms;
-        }
-    </style>
-
+    <!-- Enhanced Dark Mode Script -->
     <script>
-        // Dark mode toggle
         function toggleDarkMode() {
             const html = document.documentElement;
-            const isDark = html.classList.contains('dark');
+            const lightIcon = document.getElementById('lightModeIcon');
+            const darkIcon = document.getElementById('darkModeIcon');
+            const darkModeToggle = document.getElementById('darkModeToggle');
             
-            if (isDark) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                document.getElementById('lightModeIcon').classList.remove('hidden');
-                document.getElementById('darkModeIcon').classList.add('hidden');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                document.getElementById('darkModeIcon').classList.remove('hidden');
-                document.getElementById('lightModeIcon').classList.add('hidden');
-            }
-        }
-
-        // Check for saved theme preference
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            document.getElementById('darkModeIcon').classList.remove('hidden');
-            document.getElementById('lightModeIcon').classList.add('hidden');
-        } else {
-            document.documentElement.classList.remove('dark');
-            document.getElementById('lightModeIcon').classList.remove('hidden');
-            document.getElementById('darkModeIcon').classList.add('hidden');
-        }
-
-        // Notification dropdown
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationDropdown = document.getElementById('notificationDropdown');
-        
-        notificationBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle('hidden');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-            notificationDropdown.classList.add('hidden');
-        });
-        
-        // Prevent dropdown from closing when clicking inside
-        notificationDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        // Time range selector for chart
-        function changeTimeRange(range) {
-            // Reset all buttons
-            const buttons = ['btn-7d', 'btn-30d', 'btn-ytd'];
-            buttons.forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-                btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
-            });
-
-            // Highlight active button
-            const activeBtn = document.getElementById(`btn-${range}`);
-            activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-200', 'dark:hover:bg-gray-600');
-            activeBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-
-            // Update chart data based on range
-            let labels, data;
-            switch(range) {
-                case '7d':
-                    labels = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
-                    data = [12000, 15000, 18000, 14000, 22000, 19000, 25000];
-                    break;
-                case '30d':
-                    labels = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
-                    data = Array.from({length: 30}, () => Math.floor(Math.random() * 30000) + 10000);
-                    break;
-                case 'ytd':
-                default:
-                    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    data = [65000, 59000, 80000, 81000, 56000, 55000, 70000, 75000, 85000, 78000, 82000, 90000];
-                    break;
-            }
-
-            revenueChart.data.labels = labels;
-            revenueChart.data.datasets[0].data = data;
-            revenueChart.update();
-        }
-
-        // View all activity
-        function viewAllActivity() {
-            alert('Redirecting to activity page...');
-        }
-
-        // Refresh orders
-        function refreshOrders() {
-            // Add loading animation
-            const refreshBtn = document.querySelector('[onclick="refreshOrders()"]');
-            refreshBtn.classList.add('animate-spin');
+            html.classList.toggle('dark');
+            lightIcon.classList.toggle('hidden');
+            darkIcon.classList.toggle('hidden');
             
+            darkModeToggle.classList.add('scale-95');
             setTimeout(() => {
-                refreshBtn.classList.remove('animate-spin');
-                alert('Orders refreshed!');
-            }, 1000);
+                darkModeToggle.classList.remove('scale-95');
+            }, 150);
+            
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
         }
-
-        // View order details
-        function viewOrder(orderId) {
-            alert(`Viewing details for order: ${orderId}`);
-        }
-
-        // Edit order
-        function editOrder(orderId) {
-            alert(`Editing order: ${orderId}`);
-        }
-
-        // View stat details
-        function viewStatDetails(statName) {
-            alert(`Viewing detailed analytics for: ${statName}`);
-        }
-
-        // Chart interaction
-        document.querySelectorAll('[onmouseenter]').forEach(el => {
-            el.addEventListener('mouseenter', function() {
-                const value = this.getAttribute('title').split(': ')[1];
-                // You could show a tooltip or update a display element here
-            });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            const lightIcon = document.getElementById('lightModeIcon');
+            const darkIcon = document.getElementById('darkModeIcon');
+            
+            if (savedDarkMode === 'true') {
+                document.documentElement.classList.add('dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            } else if (savedDarkMode === 'false') {
+                document.documentElement.classList.remove('hidden');
+                lightIcon.classList.remove('hidden');
+                darkIcon.classList.add('hidden');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+                localStorage.setItem('darkMode', 'true');
+            }
+        });
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('darkMode')) {
+                if (e.matches) {
+                    document.documentElement.classList.add('dark');
+                    document.getElementById('lightModeIcon').classList.add('hidden');
+                    document.getElementById('darkModeIcon').classList.remove('hidden');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.getElementById('lightModeIcon').classList.remove('hidden');
+                    document.getElementById('darkModeIcon').classList.add('hidden');
+                }
+            }
         });
     </script>
-</x-app-layout>
+</body>
+</html>

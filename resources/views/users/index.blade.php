@@ -94,6 +94,14 @@
                         <input type="text" name="name" required
                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
+                     <div class="mb-4">
+    <label for="role" class="block text-sm font-medium">Role</label>
+    <select name="role" id="role" class="mt-1 block w-full" required>
+        <option value="user" {{ old('role', 'admin') === 'user' ? 'selected' : '' }}>User</option>
+        <option value="manager" {{ old('role', 'admin') === 'manager' ? 'selected' : '' }}>Manager</option>
+        <option value="admin" {{ old('role', 'admin') === 'admin' ? 'selected' : '' }}>Admin</option>
+    </select>
+</div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Email</label>
