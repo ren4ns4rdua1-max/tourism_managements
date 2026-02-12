@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GalleryController;
@@ -17,6 +16,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
+
 // ADD THIS TEMPORARILY - Check current role
 Route::get('/check-role', function() {
     if (!auth()->check()) {
@@ -49,14 +49,26 @@ Route::get('/set-admin', function() {
 Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('destinations', DestinationController::class)->except(['show']);
     Route::resource('gallery', GalleryController::class)->except(['show', 'edit', 'update']);
+    Route::resource('booking', BookingController::class);
+    Route::resource('feedback', FeedbackController::class);
+    Route::resource('users', UserController::class);
 });
 
 // Public destination view
 Route::get('/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
 
-// Authenticated user routes
+// Authenticated user routes with role-based dashboard
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+
+    // Redirect based on user role
+    if ($user->role === 'admin') {
+        return view('dashboard'); // Admin dashboard
+    } elseif ($user->role === 'manager') {
+        return view('dashboard.manager'); // Manager dashboard
+    } else {
+        return view('dashboard.user'); // User dashboard (default)
+    }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

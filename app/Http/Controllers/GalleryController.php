@@ -10,7 +10,13 @@ class GalleryController extends Controller
 {
     public function index()
     {
-        $galleries = Gallery::with('user')->latest()->paginate(12);
+        if (auth()->user()->role === 'admin') {
+            $galleries = Gallery::with('user')->latest()->paginate(12);
+        } else {
+            $galleries = Gallery::with('user')->whereHas('user', function($q) {
+                $q->where('role', 'manager');
+            })->latest()->paginate(12);
+        }
         return view('gallery.index', compact('galleries'));
     }
 
