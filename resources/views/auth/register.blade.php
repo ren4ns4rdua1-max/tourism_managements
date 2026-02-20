@@ -75,6 +75,9 @@
 
                     <form method="POST" action="{{ route('register') }}" class="space-y-6">
                         @csrf
+                        
+                        <!-- Hidden input for redirect URL -->
+                        <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
 
                         <!-- Name -->
                         <div>
@@ -134,6 +137,8 @@
                                 </div>
                                 <select name="role" id="role" class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200 appearance-none bg-white" required>
                                     <option value="user" {{ old('role', 'user') === 'user' ? 'selected' : '' }}>Regular User</option>
+                                     <option value="admin" {{ old('role', 'admin') === 'admin' ? 'selected' : '' }}> admin</option>
+                                      <option value="manager" {{ old('role', 'manager') === 'manager' ? 'selected' : '' }}> manager</option>
                                     <!-- Add more options if needed -->
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

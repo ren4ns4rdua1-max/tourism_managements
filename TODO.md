@@ -1,44 +1,32 @@
-## Tasks to Complete
-- [ ] Update Gallery page (resources/views/gallery/index.blade.php) to match dashboard design
-- [ ] Update Destinations page (resources/views/destinations/index.blade.php) to match dashboard design
-- [ ] Update Users page (resources/views/users/index.blade.php) to match dashboard design
-- [ ] Create Booking page with dashboard design
-- [ ] Create Feedback page with dashboard design
+# TODO - Add Accept/Decline Actions to Manager Booking
 
-## Design Requirements
-- Sidebar navigation with gradient backgrounds
-- Dark mode toggle functionality
-- Modern card layouts with gradients and shadows
-- Responsive design
-- Alpine.js for interactivity
-- Consistent color schemes and styling
-- Header with user info and dark mode toggle
+## Plan:
+- [x] 1. Add routes for accept/decline actions in web.php
+- [x] 2. Create Mailable class for booking confirmation email
+- [x] 3. Update BookingController with accept/decline methods
+- [x] 4. Update manager index view with Accept/Decline buttons
 
-## Current Status
-- Dashboard design is complete and serves as the template
-- Gallery, Destinations, and Users pages need full redesign
-- Booking and Feedback pages need to be created from scratch
-=======
-# Admin Pages Design Update
+## Gmail Configuration (to be added in .env):
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=ren4ns4rdua1@gmail.com
+MAIL_PASSWORD=brainprow5
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=ren4ns4rdua1@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
 
-## Tasks to Complete
-- [ ] Update Gallery page (resources/views/gallery/index.blade.php) to match dashboard design
-- [ ] Update Destinations page (resources/views/destinations/index.blade.php) to match dashboard design
-- [ ] Update Users page (resources/views/users/index.blade.php) to match dashboard design
-- [x] Create Booking page with dashboard design
-- [x] Create Feedback page with dashboard design
+## Progress:
+- [x] Step 1: Add routes in web.php
+- [x] Step 2: Create Mailable class
+- [x] Step 3: Update BookingController with accept/decline methods
+- [x] Step 4: Update manager index view with Accept/Decline buttons
 
-## Design Requirements
-- Sidebar navigation with gradient backgrounds
-- Dark mode toggle functionality
-- Modern card layouts with gradients and shadows
-- Responsive design
-- Alpine.js for interactivity
-- Consistent color schemes and styling
-- Header with user info and dark mode toggle
-
-## Current Status
-- Dashboard design is complete and serves as the template
-- Gallery, Destinations, and Users pages need full redesign
-- Booking and Feedback pages have been created and are functional
-- Manager role now has access to destinations, gallery, booking, users, and feedback management
+## Summary of Changes:
+1. **routes/web.php**: Added accept and decline routes
+2. **app/Mail/BookingConfirmation.php**: Created new Mailable class for sending booking confirmation/decline emails
+3. **resources/views/emails/booking-confirmation.blade.php**: Created email template
+4. **app/Http/Controllers/BookingController.php**: Added accept() and decline() methods with email functionality
+5. **resources/views/booking/manager/index.blade.php**: Added Accept/Decline buttons that only appear for pending bookings

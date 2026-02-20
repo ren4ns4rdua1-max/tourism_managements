@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Gallery;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,7 +18,11 @@ class GalleryController extends Controller
                 $q->where('role', 'manager');
             })->latest()->paginate(12);
         }
-        return view('gallery.index', compact('galleries'));
+        
+        // Get feedbacks for the view
+        $feedbacks = Feedback::with('user')->latest()->paginate(10);
+        
+        return view('gallery.index', compact('galleries', 'feedbacks'));
     }
 
     public function create()

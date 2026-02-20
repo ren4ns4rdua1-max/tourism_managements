@@ -37,6 +37,9 @@
 
                     <form method="POST" action="{{ route('login') }}" class="space-y-6">
                         @csrf
+                        
+                        <!-- Hidden input for redirect URL -->
+                        <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
 
                         <!-- Email Address -->
                         <div>

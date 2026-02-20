@@ -34,6 +34,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    // Relationships
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     // Helper methods
     public function isAdmin()
     {

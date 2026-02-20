@@ -2,11 +2,29 @@
     use App\Models\User;
     use App\Models\Destination;
     use App\Models\Gallery;
+    use App\Models\Feedback;
     use Illuminate\Support\Facades\DB;
 
     // Basic stats for users
     $totalDestinations = Destination::where('is_active', true)->count();
     $totalGallery = Gallery::count();
+
+    // Fetch active destinations (limit 6)
+    $destinations = Destination::where('is_active', true)
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+
+    // Fetch recent gallery images (limit 6)
+    $galleries = Gallery::orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+
+    // Fetch recommendations - show featured destinations (random selection as recommendations)
+    $recommendedDestinations = Destination::where('is_active', true)
+        ->inRandomOrder()
+        ->limit(4)
+        ->get();
 @endphp
 
 <!DOCTYPE html>
@@ -79,21 +97,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                         </svg>
                         <span>Dashboard</span>
-                    </a>
-                    <a href="{{ route('gallery.index') }}"
-                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>Gallery</span>
-                    </a>
-                    <a href="{{ route('destinations.index') }}"
-                       class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Destinations</span>
                     </a>
                 </div>
             </nav>
@@ -302,66 +305,341 @@
                         </div>
                     </div>
 
+                    <!-- Recommended Destinations Section -->
+                    @if($recommendedDestinations->count() > 0)
+                    <div class="bg-white dark:bg-gray-800 border-2 border-amber-300 dark:border-amber-600
+                                rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white mr-3 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        Recommended for You
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        Top-rated destinations based on customer reviews
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('destinations.index') }}" class="text-sm font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300">
+                                View All <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            @foreach($recommendedDestinations as $destination)
+                            <div class="group relative bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+                                <div class="relative h-32 overflow-hidden">
+                                    @if($destination->image)
+                                        <img src="{{ asset('storage/' . $destination->image) }}" 
+                                             alt="{{ $destination->name }}"
+                                             class="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-300">
+                                    @else
+                                        <div class="w-full h-32 bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+                                            <svg class="w-10 h-10 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                    <div class="absolute top-2 right-2">
+                                        <span class="px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full flex items-center">
+                                            <i class="fas fa-star mr-1"></i> {{ number_format($destination->feedbacks_avg_rating ?? 0, 1) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-3">
+                                    <h4 class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ $destination->name }}</h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex items-center">
+                                        <i class="fas fa-location-dot mr-1 text-red-500"></i>
+                                        {{ $destination->location }}
+                                    </p>
+                                    @if($destination->price)
+                                        <p class="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+                                            ₱{{ number_format($destination->price, 2) }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <a href="{{ route('destinations.index') }}" class="absolute inset-0"></a>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Destinations Section -->
+                    @if($destinations->count() > 0)
+                    <div class="bg-white dark:bg-gray-800 border-2 border-blue-300 dark:border-blue-700
+                                rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white mr-3 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        Popular Destinations
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        Explore our amazing travel destinations
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('destinations.index') }}" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+                                View All <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach($destinations as $destination)
+                            <div class="group relative bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+                                <div class="relative h-40 overflow-hidden">
+                                    @if($destination->image)
+                                        <img src="{{ asset('storage/' . $destination->image) }}" 
+                                             alt="{{ $destination->name }}"
+                                             class="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300">
+                                    @else
+                                        <div class="w-full h-40 bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                    @if($destination->is_active)
+                                        <span class="absolute top-2 left-2 px-2 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                            <i class="fas fa-check-circle mr-1"></i> Active
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-bold text-gray-900 dark:text-white truncate">{{ $destination->name }}</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 flex items-center">
+                                        <i class="fas fa-location-dot mr-1 text-red-500"></i>
+                                        {{ $destination->location }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
+                                        {{ Str::limit($destination->description, 80) }}
+                                    </p>
+                                    @if($destination->price)
+                                        <div class="flex items-center justify-between mt-3">
+                                            <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                                                ₱{{ number_format($destination->price, 2) }}
+                                            </p>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">starting at</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <a href="{{ route('destinations.index') }}" class="absolute inset-0"></a>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Gallery Section -->
+                    @if($galleries->count() > 0)
+                    <div class="bg-white dark:bg-gray-800 border-2 border-purple-300 dark:border-purple-700
+                                rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white mr-3 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        Photo Gallery
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        Explore our collection of memorable moments
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('gallery.index') }}" class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300">
+                                View All <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            @foreach($galleries->take(6) as $gallery)
+                            <div class="relative group overflow-hidden rounded-lg">
+                                @if($gallery->image)
+                                    <img src="{{ asset('storage/' . $gallery->image) }}" 
+                                         alt="{{ $gallery->title ?? 'Gallery Image' }}"
+                                         class="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-300">
+                                @else
+                                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                                @if($gallery->title)
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                                        <p class="text-white text-sm font-medium truncate">{{ $gallery->title }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Feedback Form Section -->
+                    <div class="bg-white dark:bg-gray-800 border-2 border-teal-300 dark:border-teal-600 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="p-2.5 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white mr-3 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        Share Your Feedback
+                                    </h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                                        We value your opinion! Let us know how we can improve
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Form -->
+                        <form action="{{ route('dashboard.feedback.store') }}" method="POST" id="feedbackForm">
+                            @csrf
+
+                            <!-- Success Message -->
+                            @if(session('success'))
+                                <div class="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-800/20 border-l-4 border-green-500 rounded-xl p-4 shadow-md">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mr-3">
+                                            <i class="fas fa-check-circle text-white text-lg"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-green-800 dark:text-green-300 font-medium">{{ session('success') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Error Messages -->
+                            @if($errors->any())
+                                <div class="mb-6 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-800/20 border-l-4 border-red-500 rounded-xl p-4 shadow-md">
+                                    <div class="flex items-start">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center mr-3 mt-0.5">
+                                            <i class="fas fa-exclamation-circle text-white text-lg"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            @foreach($errors->all() as $error)
+                                                <p class="text-red-800 dark:text-red-300 text-sm">{{ $error }}</p>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Star Rating -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">
+                                    How would you rate your experience?
+                                </label>
+                                <div class="flex items-center space-x-2" id="starRating">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <button type="button" 
+                                                class="star-btn focus:outline-none"
+                                                data-rating="{{ $i }}"
+                                                onclick="selectRating({{ $i }})">
+                                            <svg class="w-10 h-10 transition-all duration-200 hover:scale-125 text-gray-300 dark:text-gray-600"
+                                                 id="star-{{ $i }}"
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        </button>
+                                    @endfor
+                                    <span class="ml-3 text-sm text-gray-600 dark:text-gray-400" id="ratingText"></span>
+                                </div>
+                                <input type="hidden" name="rating" id="ratingInput" value="{{ old('rating', 0) }}">
+                            </div>
+
+                            <!-- Feedback Text -->
+                            <div class="mb-6">
+                                <label for="feedback_text" class="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">
+                                    Your Feedback <span class="text-red-500">*</span>
+                                </label>
+                                <textarea 
+                                    id="feedback_text" 
+                                    name="feedback_text" 
+                                    rows="4"
+                                    class="w-full border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-teal-500 dark:focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 rounded-xl p-4 transition-all resize-none"
+                                    placeholder="Tell us about your experience, what you liked, or how we can improve..."
+                                    required
+                                >{{ old('feedback_text') }}</textarea>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                    Maximum 1000 characters
+                                </p>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="flex justify-end">
+                                <button type="submit" 
+                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                    </svg>
+                                    Submit Feedback
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <script>
+                        // Star rating functionality
+                        let currentRating = {{ old('rating', 0) }};
+                        
+                        function selectRating(rating) {
+                            currentRating = rating;
+                            document.getElementById('ratingInput').value = rating;
+                            updateStars();
+                        }
+                        
+                        function updateStars() {
+                            for (let i = 1; i <= 5; i++) {
+                                const star = document.getElementById('star-' + i);
+                                if (i <= currentRating) {
+                                    star.classList.remove('text-gray-300', 'dark:text-gray-600');
+                                    star.classList.add('text-yellow-400', 'fill-yellow-400');
+                                } else {
+                                    star.classList.remove('text-yellow-400', 'fill-yellow-400');
+                                    star.classList.add('text-gray-300', 'dark:text-gray-600');
+                                }
+                            }
+                            
+                            const ratingText = document.getElementById('ratingText');
+                            if (currentRating > 0) {
+                                ratingText.textContent = currentRating + ' star' + (currentRating > 1 ? 's' : '');
+                            } else {
+                                ratingText.textContent = '';
+                            }
+                        }
+                        
+                        // Initialize stars on page load
+                        document.addEventListener('DOMContentLoaded', function() {
+                            updateStars();
+                        });
+                    </script>
                 </div>
             </div>
         </main>
     </div>
-
-    <!-- Enhanced Dark Mode Script -->
-    <script>
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const lightIcon = document.getElementById('lightModeIcon');
-            const darkIcon = document.getElementById('darkModeIcon');
-            const darkModeToggle = document.getElementById('darkModeToggle');
-
-            html.classList.toggle('dark');
-            lightIcon.classList.toggle('hidden');
-            darkIcon.classList.toggle('hidden');
-
-            darkModeToggle.classList.add('scale-95');
-            setTimeout(() => {
-                darkModeToggle.classList.remove('scale-95');
-            }, 150);
-
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('darkMode', isDark);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            const lightIcon = document.getElementById('lightModeIcon');
-            const darkIcon = document.getElementById('darkModeIcon');
-
-            if (savedDarkMode === 'true') {
-                document.documentElement.classList.add('dark');
-                lightIcon.classList.add('hidden');
-                darkIcon.classList.remove('hidden');
-            } else if (savedDarkMode === 'false') {
-                document.documentElement.classList.remove('hidden');
-                lightIcon.classList.remove('hidden');
-                darkIcon.classList.add('hidden');
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.classList.add('dark');
-                lightIcon.classList.add('hidden');
-                darkIcon.classList.remove('hidden');
-                localStorage.setItem('darkMode', 'true');
-            }
-        });
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (!localStorage.getItem('darkMode')) {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                    document.getElementById('lightModeIcon').classList.add('hidden');
-                    document.getElementById('darkModeIcon').classList.remove('hidden');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    document.getElementById('lightModeIcon').classList.remove('hidden');
-                    document.getElementById('darkModeIcon').classList.add('hidden');
-                }
-            }
-        });
-    </script>
 </body>
 </html>

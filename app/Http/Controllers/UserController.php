@@ -12,7 +12,13 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::paginate(10); // 10 users per page
+        if (auth()->user()->role === 'admin') {
+            // Admin sees all users
+            $users = User::paginate(10);
+        } else {
+            // Manager sees only manager users
+            $users = User::where('role', 'manager')->paginate(10);
+        }
 
         return view('users.index', compact('users'));
     }

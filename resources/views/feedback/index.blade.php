@@ -104,6 +104,22 @@
             border-radius: 10px;
         }
         
+        .star-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .star-filled {
+            color: #fbbf24;
+            fill: #fbbf24;
+        }
+        
+        .star-empty {
+            color: #e2e8f0;
+            fill: #e2e8f0;
+        }
+        
         .modal-enter {
             animation: modalEnter 0.3s ease-out forwards;
         }
@@ -146,12 +162,12 @@
                         <div class="flex items-center pl-12 lg:pl-0">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                                    Gallery Management
-                                    <span class="ml-3 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold px-3 py-1 rounded-full">IMAGES</span>
+                                    Customer Feedback
+                                    <span class="ml-3 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold px-3 py-1 rounded-full">INSIGHTS</span>
                                 </h1>
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 flex items-center">
-                                    <i class="fas fa-images text-xs mr-2"></i>
-                                    {{ $galleries->total() }} gallery images • Last updated: {{ now()->format('M d, Y') }}
+                                    <i class="fas fa-comments text-xs mr-2"></i>
+                                    {{ $feedbacks->total() }} feedback entries • Last updated: {{ now()->format('M d, Y') }}
                                 </p>
                             </div>
                         </div>
@@ -172,7 +188,7 @@
                                 <input type="text" 
                                        id="searchInput"
                                        class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 w-64 text-sm transition-all"
-                                       placeholder="Search galleries...">
+                                       placeholder="Search feedback...">
                             </div>
                             
                             <!-- Filter Dropdown -->
@@ -186,15 +202,24 @@
                                      x-transition
                                      class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50"
                                      style="display: none;">
-                                    <a href="{{ route('gallery.index') }}" 
+                                    <a href="{{ route('feedback.index') }}" 
                                        class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <i class="fas fa-images mr-2 w-4"></i> All Images
+                                        <i class="fas fa-list-ul mr-2 w-4"></i> All Feedback
                                     </a>
-                                    <a href="{{ route('gallery.index', ['sort' => 'recent']) }}" 
+                                    <a href="{{ route('feedback.index', ['rating' => 5]) }}" 
+                                       class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <i class="fas fa-star mr-2 w-4 text-yellow-500"></i> 5 Star Only
+                                    </a>
+                                    <a href="{{ route('feedback.index', ['rating' => 4]) }}" 
+                                       class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <i class="fas fa-star mr-2 w-4 text-yellow-500"></i> 4 Star & Above
+                                    </a>
+                                    <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                                    <a href="{{ route('feedback.index', ['sort' => 'recent']) }}" 
                                        class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         <i class="fas fa-clock mr-2 w-4"></i> Most Recent
                                     </a>
-                                    <a href="{{ route('gallery.index', ['sort' => 'oldest']) }}" 
+                                    <a href="{{ route('feedback.index', ['sort' => 'oldest']) }}" 
                                        class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         <i class="fas fa-calendar mr-2 w-4"></i> Oldest First
                                     </a>
@@ -207,11 +232,11 @@
                                 <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
                             
-                            <!-- Add Gallery Button -->
-                            <a href="{{ route('gallery.create') }}"
+                            <!-- Add Feedback Button -->
+                            <a href="{{ route('feedback.create') }}"
                                 class="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-3 group">
                                 <i class="fas fa-plus-circle text-lg"></i>
-                                Add Image
+                                Add Feedback
                                 <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
                             </a>
                         </div>
@@ -228,18 +253,18 @@
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Images</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $galleries->total() }}</h3>
+                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Feedback</p>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $feedbacks->total() }}</h3>
                                 </div>
                                 <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                                    <i class="fas fa-images text-violet-600 dark:text-violet-400 text-xl"></i>
+                                    <i class="fas fa-comments text-violet-600 dark:text-violet-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-arrow-up text-green-500 mr-2"></i>
-                                    <span class="text-green-600 dark:text-green-400 font-semibold">+{{ $galleries->count() }}</span>
-                                    <span class="text-gray-500 dark:text-gray-400 ml-2">new this session</span>
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">+12%</span>
+                                    <span class="text-gray-500 dark:text-gray-400 ml-2">from last month</span>
                                 </div>
                             </div>
                         </div>
@@ -247,15 +272,41 @@
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Managers</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $galleries->pluck('user_id')->unique()->count() }}</h3>
+                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Average Rating</p>
+                                    <div class="flex items-end">
+                                        <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ number_format($feedbacks->avg('rating') ?? 0, 1) }}</h3>
+                                        <span class="text-gray-500 dark:text-gray-400 ml-1 text-lg">/5</span>
+                                    </div>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <i class="fas fa-users text-blue-600 dark:text-blue-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-600 dark:text-yellow-400 text-xl"></i>
                                 </div>
                             </div>
-                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Contributors</span>
+                            <div class="mt-4">
+                                <div class="flex items-center space-x-1">
+                                    @php $avgRating = $feedbacks->avg('rating') ?? 0; @endphp
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="fas fa-star {{ $i <= round($avgRating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }}"></i>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Response Rate</p>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">94%</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style="width: 94%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Excellent response rate</p>
                             </div>
                         </div>
                         
@@ -263,29 +314,14 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">This Month</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $galleries->where('created_at', '>=', now()->startOfMonth())->count() }}</h3>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $feedbacks->where('created_at', '>=', now()->startOfMonth())->count() }}</h3>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                    <i class="fas fa-calendar-check text-green-600 dark:text-green-400 text-xl"></i>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">New uploads</span>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Storage Used</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">--</h3>
-                                </div>
-                                <div class="w-12 h-12 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                                    <i class="fas fa-database text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <i class="fas fa-calendar text-blue-600 dark:text-blue-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Estimated</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">↑ 8% from last month</span>
                             </div>
                         </div>
                     </div>
@@ -333,17 +369,18 @@
                     </div>
                     @endif
 
-                    <!-- Gallery Header -->
+                    <!-- Feedback Header -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Image Gallery</h2>
-                            <p class="text-gray-600 dark:text-gray-300 mt-2">View and manage gallery images</p>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Feedback Collection</h2>
+                            <p class="text-gray-600 dark:text-gray-300 mt-2">View and manage customer feedback and ratings</p>
                         </div>
                         <div class="flex items-center space-x-3 mt-4 md:mt-0">
-                            <select id="sortFilter" class="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 pl-4 pr-10 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-violet-500">
-                                <option value="all">All Images</option>
-                                <option value="recent">Most Recent</option>
-                                <option value="oldest">Oldest First</option>
+                            <select id="ratingFilter" class="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 pl-4 pr-10 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-violet-500">
+                                <option value="all">All Ratings</option>
+                                <option value="5">5 Stars Only</option>
+                                <option value="4">4 Stars & Up</option>
+                                <option value="3">3 Stars & Up</option>
                             </select>
                             <button class="p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <i class="fas fa-download text-lg"></i>
@@ -351,8 +388,8 @@
                         </div>
                     </div>
 
-                    <!-- Gallery Table -->
-                    @if($galleries->count() > 0)
+                    <!-- Feedback Grid/Table -->
+                    @if($feedbacks->count() > 0)
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -360,18 +397,15 @@
                                     <tr>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                             <div class="flex items-center space-x-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
-                                                <span>Image</span>
+                                                <span>Customer</span>
                                                 <i class="fas fa-sort text-xs"></i>
                                             </div>
                                         </th>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Title
+                                            Feedback
                                         </th>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Description
-                                        </th>
-                                        <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                            Uploaded By
+                                            Rating
                                         </th>
                                         <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                             Date
@@ -382,68 +416,67 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    @foreach($galleries as $index => $gallery)
+                                    @foreach($feedbacks as $index => $feedback)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group animate-fade-in" 
                                         style="animation-delay: {{ $index * 0.03 }}s">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0">
-                                                    @if($gallery->image_path)
-                                                    <img class="h-12 w-12 rounded-lg object-cover shadow-md" 
-                                                         src="{{ asset('storage/' . $gallery->image_path) }}" 
-                                                         alt="{{ $gallery->title }}">
-                                                    @else
-                                                    <div class="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                                        <i class="fas fa-image text-gray-400"></i>
+                                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 
+                                                                flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                                                        {{ substr($feedback->user->name ?? 'U', 0, 2) }}
                                                     </div>
-                                                    @endif
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {{ $gallery->title }}
-                                            </div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                ID: #{{ $gallery->id }}
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">
+                                                        {{ $feedback->user->name ?? 'Unknown User' }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                        ID: #{{ $feedback->id }}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-sm text-gray-700 dark:text-gray-300 max-w-xs line-clamp-2">
-                                                {{ $gallery->description ?? 'No description' }}
+                                                {{ $feedback->feedback_text }}
                                             </div>
+                                            @if(strlen($feedback->feedback_text) > 100)
+                                                <button onclick="viewFeedback({{ $feedback->id }})" 
+                                                        class="text-xs text-violet-600 hover:text-violet-700 mt-1 font-medium">
+                                                    Read more
+                                                </button>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0">
-                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 
-                                                                flex items-center justify-center text-white font-semibold text-xs shadow-md">
-                                                        {{ substr($gallery->user->name ?? 'U', 0, 2) }}
+                                            @if($feedback->rating)
+                                                <div class="flex flex-col">
+                                                    <div class="star-rating">
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            <i class="fas fa-star {{ $i <= $feedback->rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600' }}"></i>
+                                                        @endfor
                                                     </div>
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {{ $feedback->rating }}/5
+                                                    </span>
                                                 </div>
-                                                <div class="ml-3">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {{ $gallery->user->name ?? 'Unknown' }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                                        {{ $gallery->user->role ?? 'N/A' }}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            @else
+                                                <span class="text-sm text-gray-400 dark:text-gray-500">No rating</span>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex flex-col">
                                                 <span class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {{ $gallery->created_at->format('M d, Y') }}
+                                                    {{ $feedback->created_at->format('M d, Y') }}
                                                 </span>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ $gallery->created_at->format('h:i A') }}
+                                                    {{ $feedback->created_at->format('h:i A') }}
                                                 </span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onclick="viewGallery({{ $gallery->id }})"
+                                                <button onclick="viewFeedback({{ $feedback->id }})"
                                                         class="p-2 text-gray-600 hover:text-violet-600 dark:text-gray-400 
                                                                dark:hover:text-violet-400 rounded-lg hover:bg-gray-100 
                                                                dark:hover:bg-gray-700 transition-colors"
@@ -451,10 +484,10 @@
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 
-                                                @if(auth()->id() === $gallery->user_id || auth()->user()->role === 'admin')
-                                                    <form action="{{ route('gallery.destroy', $gallery) }}" 
+                                                @if(auth()->id() === $feedback->user_id || auth()->user()->isAdmin())
+                                                    <form action="{{ route('feedback.destroy', $feedback) }}" 
                                                           method="POST" 
-                                                          onsubmit="return confirm('Are you sure you want to delete this image?');"
+                                                          onsubmit="return confirm('Are you sure you want to delete this feedback?');"
                                                           class="inline">
                                                         @csrf
                                                         @method('DELETE')
@@ -476,25 +509,25 @@
                         </div>
 
                         <!-- Pagination -->
-                        @if($galleries->hasPages())
+                        @if($feedbacks->hasPages())
                         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                             <div class="flex items-center justify-between">
                                 <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    Showing {{ $galleries->firstItem() }} to {{ $galleries->lastItem() }} of {{ $galleries->total() }} gallery images
+                                    Showing {{ $feedbacks->firstItem() }} to {{ $feedbacks->lastItem() }} of {{ $feedbacks->total() }} feedback entries
                                 </p>
                                 <div class="flex space-x-2">
-                                    @if($galleries->onFirstPage())
+                                    @if($feedbacks->onFirstPage())
                                     <button disabled class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-400 text-sm">
                                         <i class="fas fa-chevron-left mr-2"></i> Previous
                                     </button>
                                     @else
-                                    <a href="{{ $galleries->previousPageUrl() }}" class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                                    <a href="{{ $feedbacks->previousPageUrl() }}" class="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
                                         <i class="fas fa-chevron-left mr-2"></i> Previous
                                     </a>
                                     @endif
                                     
-                                    @if($galleries->hasMorePages())
-                                    <a href="{{ $galleries->nextPageUrl() }}" class="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm shadow-sm hover:shadow">
+                                    @if($feedbacks->hasMorePages())
+                                    <a href="{{ $feedbacks->nextPageUrl() }}" class="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm shadow-sm hover:shadow">
                                         Next <i class="fas fa-chevron-right ml-2"></i>
                                     </a>
                                     @else
@@ -512,14 +545,14 @@
                     <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center shadow-lg border border-gray-100 dark:border-gray-700 animate-bounce-in">
                         <div class="max-w-md mx-auto">
                             <div class="w-20 h-20 mx-auto bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-800/30 rounded-2xl flex items-center justify-center mb-6">
-                                <i class="fas fa-images text-violet-500 dark:text-violet-400 text-3xl"></i>
+                                <i class="fas fa-comments text-violet-500 dark:text-violet-400 text-3xl"></i>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Images Yet</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-8">Start building your gallery by uploading your first image!</p>
-                            <a href="{{ route('gallery.create') }}"
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Feedback Yet</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-8">Be the first to share your experience and help us improve!</p>
+                            <a href="{{ route('feedback.create') }}"
                                 class="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold py-3.5 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-3">
                                 <i class="fas fa-plus-circle text-lg"></i>
-                                Upload Image
+                                Add Your Feedback
                             </a>
                         </div>
                     </div>
@@ -529,14 +562,14 @@
         </div>
     </div>
 
-    <!-- View Gallery Modal -->
-    <div id="viewGalleryModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <!-- View Feedback Modal -->
+    <div id="viewFeedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden modal-enter">
             <div class="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 px-6 py-5">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-white font-bold text-xl" id="modalTitle">Gallery Image Details</h3>
-                        <p class="text-purple-100 text-sm mt-1" id="modalSubtitle">View complete image information</p>
+                        <h3 class="text-white font-bold text-xl" id="modalTitle">Feedback Details</h3>
+                        <p class="text-purple-100 text-sm mt-1" id="modalSubtitle">View complete feedback information</p>
                     </div>
                     <button onclick="closeViewModal()" class="text-white hover:text-purple-200 text-2xl">
                         &times;
@@ -561,14 +594,14 @@
             document.documentElement.classList.add('dark');
         }
 
-        // View gallery details
-        function viewGallery(id) {
+        // View feedback details
+        function viewFeedback(id) {
             // This would typically fetch data via AJAX
             // For now, show modal with placeholder
-            const modal = document.getElementById('viewGalleryModal');
+            const modal = document.getElementById('viewFeedbackModal');
             const content = document.getElementById('modalContent');
             
-            // In a real implementation, you'd fetch gallery data here
+            // In a real implementation, you'd fetch feedback data here
             content.innerHTML = `
                 <div class="space-y-6">
                     <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
@@ -577,16 +610,15 @@
                             ${id}
                         </div>
                         <div>
-                            <h4 class="font-semibold text-gray-900 dark:text-white">Gallery Image #${id}</h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Image ID: #GL-${id}</p>
+                            <h4 class="font-semibold text-gray-900 dark:text-white">Customer #${id}</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Feedback ID: #FB-${id}</p>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Image Preview</label>
-                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
-                            <img src="" alt="Gallery Image" class="max-h-64 mx-auto rounded-lg">
-                            <p class="text-center text-gray-500 dark:text-gray-400 mt-2">Loading image...</p>
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Feedback Content</label>
+                        <p class="text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl">
+                            Loading feedback details...
+                        </p>
                     </div>
                 </div>
             `;
@@ -596,7 +628,7 @@
         }
 
         function closeViewModal() {
-            document.getElementById('viewGalleryModal').classList.add('hidden');
+            document.getElementById('viewFeedbackModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
 
@@ -623,15 +655,15 @@
             };
         }
 
-        // Sort filter
-        const sortFilter = document.getElementById('sortFilter');
-        if (sortFilter) {
-            sortFilter.addEventListener('change', function() {
+        // Rating filter
+        const ratingFilter = document.getElementById('ratingFilter');
+        if (ratingFilter) {
+            ratingFilter.addEventListener('change', function() {
                 const value = this.value;
                 if (value === 'all') {
-                    window.location.href = "{{ route('gallery.index') }}";
+                    window.location.href = "{{ route('feedback.index') }}";
                 } else {
-                    window.location.href = "{{ route('gallery.index') }}?sort=" + value;
+                    window.location.href = "{{ route('feedback.index') }}?rating=" + value;
                 }
             });
         }
@@ -644,9 +676,9 @@
         });
 
         // Close modal on backdrop click
-        document.getElementById('viewGalleryModal')?.addEventListener('click', (e) => {
-            if (e.target.id === 'viewGalleryModal') closeViewModal();
+        document.getElementById('viewFeedbackModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'viewFeedbackModal') closeViewModal();
         });
     </script>
 </body>
-</html>
+</html>                                 

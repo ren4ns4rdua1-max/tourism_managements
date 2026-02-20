@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookings | Travel Management</title>
+    <title>Bookings Management | Travel Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -27,11 +27,16 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
                     },
                     keyframes: {
                         fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
                         }
                     }
                 }
@@ -45,9 +50,18 @@
         }
         
         .sidebar-item.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
         }
         
         .scrollbar-thin::-webkit-scrollbar {
@@ -67,7 +81,7 @@
 <body class="bg-gray-50 dark:bg-gray-900 font-sans">
     <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
 
-        @include('layouts.sidebar-user')
+        @include('layouts.sidebar-admin')
 
         <!-- Mobile Menu Button -->
         <div class="lg:hidden fixed top-4 left-4 z-50">
@@ -86,9 +100,9 @@
                         <div class="flex items-center pl-12 lg:pl-0">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                                    <i class="fas fa-calendar-check mr-3 text-blue-600 dark:text-blue-400"></i>
-                                    My Bookings
-                                    <span class="ml-3 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold px-3 py-1 rounded-full">USER</span>
+                                    <i class="fas fa-calendar-check mr-3 text-purple-600 dark:text-purple-400"></i>
+                                    Booking Management
+                                    <span class="ml-3 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold px-3 py-1 rounded-full">ADMIN</span>
                                 </h1>
                             </div>
                         </div>
@@ -101,18 +115,21 @@
                                 <i class="fas fa-sun text-lg hidden dark:inline"></i>
                             </button>
                             
+                            <!-- Search -->
+                            <div class="hidden md:block relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" 
+                                       class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-primary-500 w-64 text-sm transition-all"
+                                       placeholder="Search bookings...">
+                            </div>
+                            
                             <!-- Notifications -->
                             <button class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                                 <i class="fas fa-bell text-lg"></i>
                                 <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
-                            
-                            <!-- Create Booking Button -->
-                            <a href="{{ route('booking.create') }}"
-                                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-3 group">
-                                <i class="fas fa-plus-circle text-lg"></i>
-                                New Booking
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -142,8 +159,20 @@
                     <!-- Bookings Header -->
                     <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Bookings</h2>
-                            <p class="text-gray-600 dark:text-gray-300 mt-2">View and manage your travel bookings</p>
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">All Bookings</h2>
+                            <p class="text-gray-600 dark:text-gray-300 mt-2">Manage all travel bookings</p>
+                        </div>
+                        <div class="flex items-center space-x-3 mt-4 md:mt-0">
+                            <select class="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 pl-4 pr-10 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-primary-500">
+                                <option>All Bookings</option>
+                                <option>Pending</option>
+                                <option>Confirmed</option>
+                                <option>Cancelled</option>
+                                <option>Completed</option>
+                            </select>
+                            <button class="p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <i class="fas fa-filter text-lg"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -156,6 +185,9 @@
                                     <tr>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             <i class="fas fa-hashtag mr-2"></i>ID
+                                        </th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            <i class="fas fa-user mr-2"></i>User
                                         </th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             <i class="fas fa-map-marker-alt mr-2"></i>Destination
@@ -172,6 +204,9 @@
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             <i class="fas fa-flag mr-2"></i>Status
                                         </th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            <i class="fas fa-cogs mr-2"></i>Actions
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -179,6 +214,17 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="text-sm font-bold text-gray-900 dark:text-white">#{{ $booking->id }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs mr-3">
+                                                    {{ substr($booking->user->name, 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $booking->user->name }}</p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $booking->user->email }}</p>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $booking->destination->name }}</p>
@@ -215,6 +261,25 @@
                                                 </span>
                                             @endif
                                         </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center space-x-2">
+                                                <a href="{{ route('admin.bookings.edit', $booking) }}" 
+                                                   class="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                                                   title="Edit">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </a>
+                                                <form method="POST" action="{{ route('admin.bookings.destroy', $booking) }}" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                                                            title="Delete"
+                                                            onclick="return confirm('Are you sure you want to delete this booking?')">
+                                                        <i class="fas fa-trash-alt text-sm"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -224,18 +289,13 @@
 
                     @else
                     <!-- Empty State -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center shadow-lg border border-gray-100 dark:border-gray-700">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center shadow-lg border border-gray-100 dark:border-gray-700 animate-bounce-in">
                         <div class="max-w-md mx-auto">
-                            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-100 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-800/30 rounded-2xl flex items-center justify-center mb-6">
-                                <i class="fas fa-calendar-times text-blue-500 dark:text-blue-400 text-3xl"></i>
+                            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-violet-100 to-purple-50 dark:from-violet-900/30 dark:to-purple-800/30 rounded-2xl flex items-center justify-center mb-6">
+                                <i class="fas fa-calendar-times text-violet-500 dark:text-violet-400 text-3xl"></i>
                             </div>
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Bookings Yet</h3>
-                            <p class="text-gray-600 dark:text-gray-300 mb-8">You haven't made any bookings yet. Start planning your next adventure!</p>
-                            <a href="{{ route('booking.create') }}"
-                                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-3">
-                                <i class="fas fa-plus-circle text-lg"></i>
-                                Book Your First Trip
-                            </a>
+                            <p class="text-gray-600 dark:text-gray-300 mb-8">There are no bookings in the system yet.</p>
                         </div>
                     </div>
                     @endif

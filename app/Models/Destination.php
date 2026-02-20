@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Destination extends Model
 {
@@ -14,7 +15,8 @@ class Destination extends Model
     'longitude',
     'image',
     'price',
-    'is_active'
+    'is_active',
+    'user_id'
 ];
 
 protected $casts = [
@@ -23,4 +25,9 @@ protected $casts = [
     'price' => 'decimal:2',
     'is_active' => 'boolean',
 ];
+
+public function user(): BelongsTo
+{
+    return $this->belongsTo(User::class);
+}
 }

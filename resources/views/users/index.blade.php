@@ -101,12 +101,18 @@
         .dark .table-row-hover:hover {
             background-color: rgba(59, 130, 246, 0.1);
         }
+
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 font-sans">
-    <div x-data="{ sidebarOpen: false, addUserModal: false, editUserModal: false, currentUser: null }" class="flex min-h-screen">
-        
-        @include('layouts.sidebar-admin')
+    <div x-data="{ sidebarOpen: false, viewFeedbackModal: false, currentFeedback: null }" class="flex min-h-screen">
+
+        @if(auth()->user()->role === 'admin')
+            @include('layouts.sidebar-admin')
+        @else
+            @include('layouts.sidebar-manager')
+        @endif
 
         <!-- Mobile Menu Button -->
         <div class="lg:hidden fixed top-4 left-4 z-50">
@@ -125,15 +131,15 @@
                         <div class="flex items-center pl-12 lg:pl-0">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                                    <i class="fas fa-users mr-3 text-violet-500"></i>
+                                    <i class="fas fa-users mr-3 text-blue-500"></i>
                                     Users Management
-                                    <span class="ml-3 text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold px-3 py-1 rounded-full">
+                                    <span class="ml-3 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold px-3 py-1 rounded-full">
                                         {{ $users->total() }} Users
                                     </span>
                                 </h1>
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 flex items-center">
-                                    <i class="fas fa-user-cog text-xs mr-2"></i>
-                                    Manage user accounts and permissions • Last updated: {{ now()->format('M d, Y') }}
+                                    <i class="fas fa-chart-line text-xs mr-2"></i>
+                                    View and manage system users • Last updated: {{ now()->format('M d, Y') }}
                                 </p>
                             </div>
                         </div>
@@ -151,26 +157,26 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
-                                <input type="text" 
+                                <input type="text"
                                        id="searchInput"
-                                       class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 w-64 text-sm transition-all"
+                                       class="pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 w-64 text-sm transition-all"
                                        placeholder="Search users..."
                                        onkeyup="searchUsers()">
                             </div>
-                            
+
                             <!-- Notifications -->
                             <button class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                                 <i class="fas fa-bell text-lg"></i>
                                 <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
-                            
+
                             <!-- Add User Button -->
-                            <button @click="addUserModal = true"
-                                class="bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 text-white font-semibold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-3 group">
-                                <i class="fas fa-user-plus text-lg"></i>
-                                Add New User
+                            <a href="{{ route('users.create') }}"
+                                class="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white font-semibold py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-3 group">
+                                <i class="fas fa-plus-circle text-lg"></i>
+                                Add User
                                 <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -188,8 +194,8 @@
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total Users</p>
                                     <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $users->total() }}</h3>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                                    <i class="fas fa-users text-violet-600 dark:text-violet-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                    <i class="fas fa-users text-blue-600 dark:text-blue-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -200,57 +206,63 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Administrators</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $users->where('role', 'admin')->count() }}</h3>
+                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Admins</p>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                        {{ $users->where('role', 'admin')->count() }}
+                                    </h3>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                    <i class="fas fa-user-shield text-blue-600 dark:text-blue-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                                    <i class="fas fa-crown text-red-600 dark:text-red-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                 <div class="flex items-center text-sm">
-                                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
-                                    <span class="text-gray-500 dark:text-gray-400">Full access</span>
+                                    <i class="fas fa-shield-alt text-red-500 mr-2"></i>
+                                    <span class="text-gray-500 dark:text-gray-400">System administrators</span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Managers</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $users->where('role', 'manager')->count() }}</h3>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                        {{ $users->where('role', 'manager')->count() }}
+                                    </h3>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                    <i class="fas fa-user-tie text-amber-600 dark:text-amber-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                                    <i class="fas fa-user-tie text-green-600 dark:text-green-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                 <div class="flex items-center text-sm">
-                                    <i class="fas fa-tasks text-amber-500 mr-2"></i>
-                                    <span class="text-gray-500 dark:text-gray-400">Content management</span>
+                                    <i class="fas fa-briefcase text-green-500 mr-2"></i>
+                                    <span class="text-gray-500 dark:text-gray-400">Content managers</span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 card-hover border border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Regular Users</p>
-                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $users->where('role', 'user')->count() }}</h3>
+                                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">
+                                        {{ $users->where('role', 'user')->count() }}
+                                    </h3>
                                 </div>
-                                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                                    <i class="fas fa-user text-green-600 dark:text-green-400 text-xl"></i>
+                                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                    <i class="fas fa-user text-purple-600 dark:text-purple-400 text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                 <div class="flex items-center text-sm">
-                                    <i class="fas fa-eye text-green-500 mr-2"></i>
-                                    <span class="text-gray-500 dark:text-gray-400">View only</span>
+                                    <i class="fas fa-user-circle text-purple-500 mr-2"></i>
+                                    <span class="text-gray-500 dark:text-gray-400">Standard users</span>
                                 </div>
                             </div>
                         </div>
@@ -293,21 +305,23 @@
                     </div>
                     @endif
 
-                    <!-- Users Table -->
+                    <!-- Feedback Table -->
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
                         <!-- Table Header -->
                         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">All Users</h3>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Manage user accounts and roles</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Manage system users and their roles</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
-                                    <select class="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2 pl-4 pr-10 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-violet-500">
-                                        <option>All Roles</option>
-                                        <option>Admin</option>
-                                        <option>Manager</option>
-                                        <option>User</option>
+                                    <select class="appearance-none bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2 pl-4 pr-10 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500">
+                                        <option>All Ratings</option>
+                                        <option>5 Stars</option>
+                                        <option>4 Stars</option>
+                                        <option>3 Stars</option>
+                                        <option>2 Stars</option>
+                                        <option>1 Star</option>
                                     </select>
                                     <button class="p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <i class="fas fa-filter text-lg"></i>
@@ -341,14 +355,14 @@
                                         </th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                             <div class="flex items-center">
-                                                <i class="fas fa-user-tag mr-2 text-gray-400"></i>
+                                                <i class="fas fa-shield-alt mr-2 text-gray-400"></i>
                                                 Role
                                             </div>
                                         </th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                             <div class="flex items-center">
                                                 <i class="fas fa-calendar mr-2 text-gray-400"></i>
-                                                Registered
+                                                Date
                                             </div>
                                         </th>
                                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -371,33 +385,30 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm mr-3 shadow-md">
+                                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm mr-3 shadow-md">
                                                         {{ substr($user->name, 0, 1) }}
                                                     </div>
                                                     <div>
                                                         <div class="text-sm font-bold text-gray-900 dark:text-white">{{ $user->name }}</div>
-                                                        <div class="text-xs text-gray-500 dark:text-gray-400">Active account</div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900 dark:text-white flex items-center">
-                                                    <i class="fas fa-envelope text-gray-400 mr-2 text-xs"></i>
-                                                    {{ $user->email }}
-                                                </div>
+                                                <div class="text-sm text-gray-700 dark:text-gray-300">{{ $user->email }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($user->role === 'admin')
-                                                    <span class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-700">
-                                                        <i class="fas fa-user-shield mr-1.5"></i> Admin
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                                        <i class="fas fa-crown mr-1"></i> Admin
                                                     </span>
                                                 @elseif($user->role === 'manager')
-                                                    <span class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                                                        <i class="fas fa-user-tie mr-1.5"></i> Manager
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                        <i class="fas fa-user-tie mr-1"></i> Manager
                                                     </span>
                                                 @else
-                                                    <span class="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-700">
-                                                        <i class="fas fa-user mr-1.5"></i> User
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                        <i class="fas fa-user mr-1"></i> User
                                                     </span>
                                                 @endif
                                             </td>
@@ -410,15 +421,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 <div class="flex items-center space-x-2">
-                                                    <a href="{{ route('users.edit', $user) }}" 
-                                                       class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors font-semibold inline-flex items-center">
+                                                    <a href="{{ route('users.edit', $user) }}"
+                                                        class="px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors font-semibold inline-flex items-center">
                                                         <i class="fas fa-edit mr-1.5"></i> Edit
                                                     </a>
                                                     <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline"
                                                           onsubmit="return confirm('Are you sure you want to delete this user?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors font-semibold inline-flex items-center">
                                                             <i class="fas fa-trash-alt mr-1.5"></i> Delete
                                                         </button>
@@ -435,10 +446,10 @@
                                                     </div>
                                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No users found</h3>
                                                     <p class="text-gray-500 dark:text-gray-400 mb-4">Get started by adding your first user</p>
-                                                    <button @click="addUserModal = true"
-                                                            class="bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 text-white font-semibold py-2 px-4 rounded-lg">
-                                                        <i class="fas fa-user-plus mr-2"></i> Add User
-                                                    </button>
+                                                    <a href="{{ route('users.create') }}"
+                                                       class="bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg">
+                                                        <i class="fas fa-plus-circle mr-2"></i> Add User
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -452,8 +463,8 @@
                         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                             <div class="flex items-center justify-between">
                                 <p class="text-sm text-gray-600 dark:text-gray-300">
-                                    Showing <span class="font-semibold">{{ $users->firstItem() }}</span> to 
-                                    <span class="font-semibold">{{ $users->lastItem() }}</span> of 
+                                    Showing <span class="font-semibold">{{ $users->firstItem() }}</span> to
+                                    <span class="font-semibold">{{ $users->lastItem() }}</span> of
                                     <span class="font-semibold">{{ $users->total() }}</span> users
                                 </p>
                                 <div class="flex space-x-2">
@@ -466,9 +477,9 @@
                                         <i class="fas fa-chevron-left mr-2"></i> Previous
                                     </a>
                                     @endif
-                                    
+
                                     @if($users->hasMorePages())
-                                    <a href="{{ $users->nextPageUrl() }}" class="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-500 text-white rounded-xl text-sm shadow-sm hover:shadow">
+                                    <a href="{{ $users->nextPageUrl() }}" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl text-sm shadow-sm hover:shadow">
                                         Next <i class="fas fa-chevron-right ml-2"></i>
                                     </a>
                                     @else
@@ -487,8 +498,8 @@
         </div>
     </div>
 
-    <!-- Add User Modal -->
-    <div x-show="addUserModal"
+    <!-- View Feedback Modal -->
+    <div x-show="viewFeedbackModal"
          x-cloak
          class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4"
          x-transition:enter="transition ease-out duration-300"
@@ -497,103 +508,85 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         @click.self="addUserModal = false">
+         @click.self="viewFeedbackModal = false">
         
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden modal-enter"
-             x-show="addUserModal"
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden modal-enter"
+             x-show="viewFeedbackModal"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 transform scale-95"
              x-transition:enter-end="opacity-100 transform scale-100">
             
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 px-6 py-5">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-5">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-white font-bold text-xl">Add New User</h3>
-                        <p class="text-purple-100 text-sm mt-1">Create a new user account</p>
+                        <h3 class="text-white font-bold text-xl">Feedback Details</h3>
+                        <p class="text-blue-100 text-sm mt-1">Complete customer feedback information</p>
                     </div>
-                    <button @click="addUserModal = false" class="text-white hover:text-purple-200 text-2xl">
+                    <button @click="viewFeedbackModal = false" class="text-white hover:text-blue-200 text-2xl">
                         &times;
                     </button>
                 </div>
             </div>
 
-            <!-- Modal Form -->
-            <form action="{{ route('users.store') }}" method="POST" class="p-6 space-y-5">
-                @csrf
-
-                <div>
-                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-2">
-                        Full Name <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-user text-gray-400"></i>
+            <!-- Modal Content -->
+            <div class="p-6 space-y-5" x-show="currentFeedback">
+                <!-- Customer Info -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-xl mr-4 shadow-md">
+                            <span x-text="currentFeedback && currentFeedback.user ? currentFeedback.user.name.charAt(0) : ''"></span>
                         </div>
-                        <input type="text" name="name" required 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-2">
-                        Email Address <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-envelope text-gray-400"></i>
-                        </div>
-                        <input type="email" name="email" required 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-2">
-                        Role <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-user-tag text-gray-400"></i>
-                        </div>
-                        <select name="role" required
-                                class="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent appearance-none">
-                            <option value="user">User - View only access</option>
-                            <option value="manager">Manager - Content management</option>
-                            <option value="admin">Admin - Full system access</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 dark:text-white" x-text="currentFeedback && currentFeedback.user ? currentFeedback.user.name : ''"></h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                                <i class="fas fa-envelope text-xs mr-2"></i>
+                                <span x-text="currentFeedback && currentFeedback.user ? currentFeedback.user.email : ''"></span>
+                            </p>
                         </div>
                     </div>
                 </div>
 
+                <!-- Rating -->
                 <div>
-                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-2">
-                        Password <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-gray-400"></i>
+                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-3">Rating</label>
+                    <div class="flex items-center bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4">
+                        <div class="flex mr-3">
+                            <template x-for="i in 5" :key="i">
+                                <svg class="w-8 h-8" :class="currentFeedback && i <= currentFeedback.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                            </template>
                         </div>
-                        <input type="password" name="password" required 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                        <span class="text-2xl font-bold text-gray-900 dark:text-white" x-text="currentFeedback ? currentFeedback.rating + '/5' : ''"></span>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Minimum 8 characters</p>
                 </div>
 
+                <!-- Feedback Text -->
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-3">Feedback Message</label>
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed" x-text="currentFeedback ? currentFeedback.feedback_text : ''"></p>
+                    </div>
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-200 font-semibold text-sm mb-3">Submitted Date</label>
+                    <div class="flex items-center text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <i class="fas fa-calendar-alt mr-3 text-lg"></i>
+                        <span x-text="currentFeedback && currentFeedback.created_at ? new Date(currentFeedback.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''"></span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
                 <div class="pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                    <button type="button" @click="addUserModal = false"
+                    <button type="button" @click="viewFeedbackModal = false"
                             class="px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium rounded-xl transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            class="bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
-                        <i class="fas fa-user-plus"></i>
-                        Create User
+                        Close
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -610,10 +603,10 @@
         }
 
         // Search functionality
-        function searchUsers() {
+        function searchFeedback() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase();
-            const table = document.getElementById('usersTable');
+            const table = document.getElementById('feedbackTable');
             const rows = table.getElementsByTagName('tr');
 
             for (let i = 1; i < rows.length; i++) {
@@ -641,14 +634,10 @@
             if (e.key === 'Escape') {
                 const modal = document.querySelector('[x-data]');
                 if (modal) {
-                    Alpine.store('addUserModal', false);
+                    Alpine.store('viewFeedbackModal', false);
                 }
             }
         });
     </script>
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </body>
 </html>

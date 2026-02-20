@@ -28,6 +28,25 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Check if there's a redirect_to parameter in the request (from query string or hidden input)
+        $redirectTo = $request->input('redirect_to');
+        
+        // If not in request, check session
+        if (!$redirectTo) {
+            $redirectTo = $request->session()->get('redirect_to');
+        }
+        
+        // Store redirect_to in session for future use
+        if ($redirectTo) {
+            $request->session()->put('redirect_to', $redirectTo);
+        }
+        
+        // If we have a redirect_to, use it
+        if ($redirectTo) {
+            $request->session()->forget('redirect_to');
+            return redirect($redirectTo);
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

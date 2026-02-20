@@ -19,7 +19,20 @@ class CheckRole
             $user->save();
         }
 
-        if (!in_array($user->role, $roles)) {
+        // Flatten the roles array - handle both comma and pipe separated roles
+        $allRoles = [];
+        foreach ($roles as $role) {
+            // Split by comma or pipe
+            $splitRoles = preg_split('/[|,]/', $role);
+            foreach ($splitRoles as $r) {
+                $r = trim($r);
+                if (!empty($r)) {
+                    $allRoles[] = $r;
+                }
+            }
+        }
+
+        if (!in_array($user->role, $allRoles)) {
             abort(403, 'Unauthorized action.');
         }
 
