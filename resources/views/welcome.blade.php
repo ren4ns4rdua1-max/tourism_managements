@@ -3,1635 +3,836 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TourEase Pro | Professional Tourism Management System</title>
+    <title>TourEase Pro | Explore Your Amazing City</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --coral: #FF5A5F;
+            --teal: #38CCCC;
+            --dark: #1B2A3B;
+            --gray: #6C7A89;
+            --light: #F8F9FA;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        body { font-family: 'Poppins', sans-serif; color: var(--dark); overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; display: block; }
+
+        /* ===== KEYFRAMES ===== */
+        @keyframes fadeInDown  { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInUp    { from { opacity:0; transform:translateY(40px);  } to { opacity:1; transform:translateY(0); } }
+        @keyframes slideSearch { from { opacity:0; transform:translateY(30px) scaleX(0.92); } to { opacity:1; transform:translateY(0) scaleX(1); } }
+        @keyframes float       { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
+        @keyframes bgKenBurns  { 0% { transform:scale(1) translate(0,0); } 100% { transform:scale(1.08) translate(-2%,-1%); } }
+        @keyframes tabIn       { 0% { transform:scale(1); } 40% { transform:scale(1.13); } 70% { transform:scale(0.96); } 100% { transform:scale(1); } }
+        @keyframes pulseRing   { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(1.9); opacity:0; } }
+        @keyframes shimmerBtn  { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
+        @keyframes loaderFill  { from { width:0; } to { width:100%; } }
+        @keyframes ripple      { 0% { transform:scale(0); opacity:.6; } 100% { transform:scale(4); opacity:0; } }
+        @keyframes scrollBob   { 0%,100% { transform:translateY(0); } 50% { transform:translateY(6px); } }
+        @keyframes dotSlide    { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+
+        /* ===== PAGE LOADER ===== */
+        #page-loader {
+            position:fixed; inset:0; background:var(--dark); z-index:99999;
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+            transition:opacity .5s, visibility .5s;
+        }
+        #page-loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+        .loader-logo { font-size:2rem; font-weight:800; color:var(--white); }
+        .loader-logo span { color:var(--coral); }
+        .loader-bar { width:200px; height:3px; background:rgba(255,255,255,.12); border-radius:2px; overflow:hidden; }
+        .loader-bar-inner { height:100%; background:var(--coral); border-radius:2px; animation:loaderFill 1.3s ease forwards; }
+
+        /* ===== BACK TO TOP ===== */
+        #btt {
+            position:fixed; bottom:28px; right:28px; z-index:900;
+            width:44px; height:44px; border-radius:50%; background:var(--coral);
+            color:#fff; border:none; font-size:.95rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:0 4px 14px rgba(255,90,95,.45);
+            opacity:0; transform:translateY(20px);
+            transition:opacity .3s, transform .3s, box-shadow .2s;
+        }
+        #btt.show { opacity:1; transform:translateY(0); }
+        #btt:hover { box-shadow:0 8px 22px rgba(255,90,95,.55); transform:translateY(-4px); }
+
+        /* ===== NAVBAR ===== */
+        #navbar {
+            position:fixed; top:0; left:0; width:100%; z-index:1000;
+            padding:18px 0; transition:all .4s cubic-bezier(.4,0,.2,1);
+            animation:fadeInDown .7s ease both;
+        }
+        #navbar.scrolled { background:var(--white); box-shadow:var(--shadow); padding:12px 0; }
+        #navbar.scrolled .nav-link { color:var(--dark); }
+        #navbar.scrolled .logo    { color:var(--dark); }
+        .nav-container { max-width:1200px; margin:0 auto; padding:0 20px; display:flex; align-items:center; justify-content:space-between; }
+        .logo { font-size:1.6rem; font-weight:800; color:#fff; letter-spacing:-.5px; transition:transform .3s; }
+        .logo:hover { transform:scale(1.05); }
+        .logo span { color:var(--coral); }
+        .nav-links { display:flex; list-style:none; gap:28px; align-items:center; }
+        .nav-link {
+            font-size:.875rem; font-weight:500; color:rgba(255,255,255,.9);
+            position:relative; transition:color .2s, transform .2s;
+        }
+        .nav-link::after {
+            content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px;
+            background:var(--coral); transition:width .3s ease;
+        }
+        .nav-link:hover { color:var(--coral); transform:translateY(-2px); }
+        .nav-link:hover::after { width:100%; }
+        #navbar.scrolled .nav-link { color:var(--dark); }
+        .nav-btn {
+            background:var(--coral); color:#fff !important; padding:8px 20px; border-radius:4px;
+            font-weight:600; font-size:.875rem; overflow:hidden; position:relative;
+            transition:transform .2s, box-shadow .2s;
+        }
+        .nav-btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.16); transform:translateX(-110%) skewX(-15deg); transition:transform .4s; }
+        .nav-btn:hover::after { transform:translateX(110%) skewX(-15deg); }
+        .nav-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(255,90,95,.4); }
+        .nav-login {
+            font-size:.875rem; font-weight:500; color:rgba(255,255,255,.9);
+            padding:8px 16px; border-radius:4px; border:1px solid rgba(255,255,255,.5);
+            transition:all .25s;
+        }
+        #navbar.scrolled .nav-login { color:var(--dark); border-color:var(--dark); }
+        .nav-login:hover { background:var(--coral); border-color:var(--coral); color:#fff !important; transform:translateY(-2px); }
+
+        /* ===== HERO ===== */
+        .hero { position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center; overflow:hidden; }
+        .hero-bg { position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80') center/cover no-repeat; animation:bgKenBurns 14s ease-in-out infinite alternate; }
+        .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,.18) 55%,rgba(0,0,0,.55)); z-index:1; }
+        .hero-particle { position:absolute; border-radius:50%; background:rgba(255,255,255,.1); animation:float 7s ease-in-out infinite; z-index:1; }
+        .hp1 { width:80px; height:80px; top:14%; left:5%;  animation-delay:0s;   }
+        .hp2 { width:40px; height:40px; top:22%; right:7%; animation-delay:1.8s; }
+        .hp3 { width:60px; height:60px; bottom:18%; left:9%; animation-delay:3.2s; }
+        .hp4 { width:25px; height:25px; bottom:28%; right:13%; animation-delay:.9s; }
+        .hero-content {
+            position:relative; z-index:2; text-align:center; color:#fff;
+            padding:110px 20px 60px; max-width:900px; margin:0 auto;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .section {
-            padding: 80px 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .section-title h2 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #1a365d;
-        }
-
-        .section-title p {
-            color: #718096;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 16px;
-            text-decoration: none;
-            cursor: pointer;
-            border: 2px solid transparent;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
-            color: white;
-        }
-
-        .grid {
-            display: grid;
-        }
-
-        .grid-cols-1 {
-            grid-template-columns: repeat(1, minmax(0, 1fr));
-        }
-
-        .md\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .lg\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .sm\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .md\:grid-cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .lg\:grid-cols-4 {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .gap-6 {
-            gap: 1.5rem;
-        }
-
-        .gap-4 {
-            gap: 1rem;
-        }
-
-        .w-full {
-            width: 100%;
-        }
-
-        .h-48 {
-            height: 12rem;
-        }
-
-        .object-cover {
-            object-fit: cover;
-        }
-
-        .rounded-lg {
-            border-radius: 0.5rem;
-        }
-
-        .shadow-md {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        .overflow-hidden {
-            overflow: hidden;
-        }
-
-
-
-        .p-6 {
-            padding: 1.5rem;
-        }
-
-        .p-4 {
-            padding: 1rem;
-        }
-
-        .text-xl {
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-        }
-
-        .text-lg {
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        }
-
-        .text-xs {
-            font-size: 0.75rem;
-            line-height: 1rem;
-        }
-
-        .font-semibold {
-            font-weight: 600;
-        }
-
-        .font-bold {
-            font-weight: 700;
-        }
-
-        .mb-2 {
-            margin-bottom: 0.5rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        .text-gray-600 {
-            color: #718096;
-        }
-
-        .text-gray-700 {
-            color: #4a5568;
-        }
-
-        .text-gray-900 {
-            color: #1a202c;
-        }
-
-        .text-blue-600 {
-            color: #2563eb;
-        }
-
-        .text-gray-500 {
-            color: #a0aec0;
-        }
-
-        .text-gray-400 {
-            color: #cbd5e0;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mt-8 {
-            margin-top: 2rem;
-        }
-
-        .py-8 {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-
-        .col-span-3 {
-            grid-column: span 3 / span 3;
-        }
-
-        .col-span-4 {
-            grid-column: span 4 / span 4;
-        }
-
-        .bg-white {
-            background-color: #ffffff;
-        }
-
-        .bg-gray-200 {
-            background-color: #edf2f7;
-        }
-
-        .flex {
-            display: flex;
-        }
-
-        .items-center {
-            align-items: center;
-        }
-
-        .justify-center {
-            justify-content: center;
-        }
-
-        .justify-between {
-            justify-content: space-between;
-        }
-
-        .btn-secondary {
-            background: #00A859;
-            color: white;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border-color: #0066CC;
-            color: #0066CC;
-        }
-
-        .btn-cta {
-            background: white;
-            color: #0066CC;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-        }
-
-        /* Header Styles */
-        #header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        #header.scrolled {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 80px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1a365d;
-        }
-
-        /* Navigation */
-        .desktop-nav .nav-links {
-            display: flex;
-            gap: 30px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #4a5568;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-links a.active {
-            color: #0066CC;
-        }
-
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #0066CC;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #4a5568;
-            cursor: pointer;
-            padding: 10px;
-        }
-
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 300px;
-            height: 100vh;
-            background: white;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 1001;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .mobile-menu.active {
-            right: 0;
-        }
-
-        .close-menu {
-            align-self: flex-end;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #4a5568;
-            cursor: pointer;
-            padding: 10px;
-        }
-
-        .mobile-menu .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            list-style: none;
-        }
-
-        .mobile-menu .nav-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 150px 0 100px;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-
-        .hero-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
         .hero-content h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #1a365d;
-            line-height: 1.2;
-        }
-
-        .hero-content h1 span {
-            color: #0066CC;
-        }
-
-        .hero-content p {
-            font-size: 1.1rem;
-            color: #4a5568;
-            margin-bottom: 30px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .stats-container {
-            display: flex;
-            gap: 40px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0066CC;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-
-        .hero-image {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .hero-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Features Section */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .feature-icon.booking {
-            background: rgba(0, 102, 204, 0.1);
-            color: #0066CC;
-        }
-
-        .feature-icon.customer {
-            background: rgba(0, 168, 89, 0.1);
-            color: #00A859;
-        }
-
-        .feature-icon.analytics {
-            background: rgba(255, 107, 53, 0.1);
-            color: #FF6B35;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 15px;
-            color: #1a365d;
-        }
-
-        .feature-card p {
-            color: #718096;
-            margin-bottom: 20px;
-        }
-
-        /* About Section */
-        .about-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .about-list {
-            list-style: none;
-            margin: 20px 0;
-        }
-
-        .about-list li {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #4a5568;
-        }
-
-        .about-list i {
-            color: #00A859;
-        }
-
-        .about-image {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .about-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Testimonials */
-        .testimonial-slider {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .testimonial-card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            margin: 0 20px;
-        }
-
-        .testimonial-content {
-            font-size: 1.1rem;
-            color: #4a5568;
-            font-style: italic;
-            margin-bottom: 30px;
-            line-height: 1.8;
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .author-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-
-        .author-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .author-info h4 {
-            color: #1a365d;
-            margin-bottom: 5px;
-        }
-
-        .author-info p {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-
-        /* CTA Section */
-        .cta {
-            background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
-            color: white;
-            text-align: center;
-            padding: 100px 0;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .cta p {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto 40px;
-            opacity: 0.9;
-        }
-
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        /* Footer */
-        footer {
-            background: #1a202c;
-            color: white;
-            padding: 80px 0 30px;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-bottom: 60px;
-        }
-
-        .footer-column h3 {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .footer-column p {
-            color: #a0aec0;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links a {
-            color: #a0aec0;
-            text-decoration: none;
-        }
-
-        .social-icons {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .social-icons a {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-        }
-
-        .footer-column p i {
-            margin-right: 10px;
-            color: #718096;
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid #2d3748;
-            color: #a0aec0;
-            font-size: 0.9rem;
-        }
-
-        .copyright a {
-            color: #a0aec0;
-            text-decoration: none;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            max-width: 800px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #0066CC 0%, #004C99 100%);
-            color: white;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .modal-content {
-            padding: 30px;
-        }
-
-        .modal-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-
-        @media (min-width: 768px) {
-            .modal-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .modal-image-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-        }
-
-        .modal-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-
-        .modal-image-placeholder {
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #718096;
-            font-size: 0.875rem;
-        }
-
-        .modal-details {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .detail-section {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            font-size: 0.875rem;
-            color: #718096;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .detail-value {
-            font-size: 1rem;
-            color: #1a202c;
-        }
-
-        .price-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #0066CC;
-        }
-
-        .coordinates {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .coordinate-item {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .modal-actions .btn {
-            flex: 1;
-        }
-
-
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .hero-container,
-            .about-container {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-            
-            .section-title h2 {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .desktop-nav {
-                display: none;
-            }
-            
-            .nav-buttons:not(.mobile-menu .nav-buttons) {
-                display: none;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-            }
-            
-            .stats-container {
-                justify-content: center;
-            }
-            
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .hero {
-                padding: 120px 0 80px;
-            }
-            
-            .section {
-                padding: 60px 0;
-            }
-            
-            .modal-container {
-                max-height: 85vh;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-content h1 {
-                font-size: 2rem;
-            }
-            
-            .section-title h2 {
-                font-size: 1.75rem;
-            }
-            
-            .cta h2 {
-                font-size: 2rem;
-            }
-            
-            .stats-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .modal-header {
-                padding: 15px 20px;
-            }
-            
-            .modal-content {
-                padding: 20px;
-            }
-            
-            .coordinates {
-                grid-template-columns: 1fr;
-            }
-        }
+            font-size:clamp(3rem,6vw,5.2rem); font-weight:800; line-height:1.02;
+            margin-bottom:10px; text-shadow:0 2px 20px rgba(0,0,0,.3);
+            animation:fadeInDown .9s .3s both;
+        }
+        .hero-content h1 .highlight { display:block; font-style:italic; font-weight:300; font-size:clamp(1.5rem,4vw,3rem); animation:fadeInDown .9s .55s both; }
+        .hero-sub { font-size:1rem; opacity:.9; margin-bottom:40px; font-weight:300; animation:fadeInUp .9s .75s both; }
+
+        .search-box {
+            background:#fff; border-radius:6px; display:flex; align-items:center; overflow:hidden;
+            box-shadow:0 8px 30px rgba(0,0,0,.22); max-width:700px; margin:0 auto 22px;
+            animation:slideSearch .9s .9s both;
+            transition:box-shadow .3s, transform .3s;
+        }
+        .search-box:focus-within { box-shadow:0 12px 40px rgba(255,90,95,.28); transform:translateY(-3px); }
+        .search-ig { display:flex; flex:1; align-items:center; padding:0 20px; gap:10px; min-height:56px; }
+        .search-ig i { color:var(--coral); font-size:1.1rem; }
+        .search-ig input { border:none; outline:none; font-family:'Poppins',sans-serif; font-size:.95rem; color:var(--dark); width:100%; background:transparent; }
+        .sdiv { width:1px; height:30px; background:#e0e0e0; }
+        .search-btn {
+            background:var(--coral); color:#fff; border:none; padding:0 32px; height:56px;
+            font-family:'Poppins',sans-serif; font-size:1rem; font-weight:600; cursor:pointer;
+            position:relative; overflow:hidden; transition:background .2s;
+        }
+        .search-btn:hover { background:#e0474c; }
+        .search-btn .ripple { position:absolute; border-radius:50%; background:rgba(255,255,255,.4); pointer-events:none; animation:ripple .6s linear; }
+
+        .filter-tabs { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; animation:fadeInUp .9s 1.1s both; }
+        .filter-tab {
+            background:rgba(255,255,255,.15); backdrop-filter:blur(10px); color:#fff;
+            border:1px solid rgba(255,255,255,.35); padding:8px 20px; border-radius:25px;
+            font-size:.85rem; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:6px;
+            transition:all .25s cubic-bezier(.22,.68,0,1.5);
+        }
+        .filter-tab:hover { transform:translateY(-3px); }
+        .filter-tab.active, .filter-tab:hover { background:#fff; color:var(--coral); border-color:#fff; animation:tabIn .4s ease; }
+
+        .scroll-hint {
+            position:absolute; bottom:28px; left:50%; transform:translateX(-50%); z-index:2;
+            display:flex; flex-direction:column; align-items:center; gap:6px;
+            color:rgba(255,255,255,.65); font-size:.68rem; letter-spacing:2px; text-transform:uppercase;
+            animation:fadeInUp 1s 1.5s both;
+        }
+        .scroll-mouse { width:22px; height:38px; border:2px solid rgba(255,255,255,.5); border-radius:11px; display:flex; align-items:flex-start; justify-content:center; padding:5px; }
+        .scroll-mouse::after { content:''; width:4px; height:7px; background:rgba(255,255,255,.8); border-radius:2px; animation:scrollBob 1.6s ease-in-out infinite; }
+
+        /* ===== TRUST ===== */
+        .trust-section { background:#fff; padding:50px 0; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+        .trust-grid { max-width:1200px; margin:0 auto; padding:0 20px; display:grid; grid-template-columns:repeat(4,1fr); gap:30px; }
+        .trust-item { text-align:center; padding:20px; transition:transform .3s; }
+        .trust-item:hover { transform:translateY(-7px); }
+        .trust-icon {
+            width:70px; height:70px; border-radius:50%; margin:0 auto 16px;
+            display:flex; align-items:center; justify-content:center; font-size:1.8rem;
+            background:linear-gradient(135deg,#fff5f5,#ffe8e8); color:var(--coral);
+            position:relative; transition:transform .3s;
+        }
+        .trust-item:hover .trust-icon::before {
+            content:''; position:absolute; inset:-6px; border-radius:50%;
+            border:2px solid rgba(255,90,95,.3); animation:pulseRing 1s linear infinite;
+        }
+        .trust-item h4 { font-size:1rem; font-weight:700; margin-bottom:8px; color:var(--dark); }
+        .trust-item p  { font-size:.8rem; color:var(--gray); line-height:1.5; }
+
+        /* ===== COMMONS ===== */
+        .section    { padding:80px 0; }
+        .container  { max-width:1200px; margin:0 auto; padding:0 20px; }
+        .sec-label  { font-size:.75rem; font-weight:600; color:var(--coral); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+        .sec-head   { font-size:clamp(1.5rem,3vw,2.2rem); font-weight:700; color:var(--dark); margin-bottom:10px; }
+        .sec-head span { color:var(--coral); }
+        .sec-hdr    { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:30px; }
+        .view-all   { font-size:.85rem; font-weight:600; color:var(--coral); display:flex; align-items:center; gap:6px; transition:gap .2s, opacity .2s; }
+        .view-all:hover { gap:10px; opacity:.8; }
+        .view-all:hover i { transform:translateX(4px); }
+        .view-all i { transition:transform .2s; }
+
+        /* ===== DESTINATIONS ===== */
+        .destinations-section { background:#fff; }
+        .dest-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; }
+        .dest-card {
+            position:relative; border-radius:10px; overflow:hidden; cursor:pointer;
+            box-shadow:0 4px 15px rgba(0,0,0,.08); transition:transform .35s cubic-bezier(.22,.68,0,1.2), box-shadow .35s;
+        }
+        .dest-card:hover { transform:translateY(-9px) scale(1.02); box-shadow:0 22px 44px rgba(0,0,0,.18); }
+        .dest-card img { width:100%; height:200px; object-fit:cover; transition:transform .5s; }
+        .dest-card:hover img { transform:scale(1.11); }
+        .dest-overlay { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(to top,rgba(0,0,0,.8),transparent); padding:30px 15px 15px; transition:padding .3s; }
+        .dest-card:hover .dest-overlay { padding-bottom:22px; }
+        .dest-overlay h4 { color:#fff; font-size:1rem; font-weight:700; }
+        .dest-overlay p  { color:rgba(255,255,255,.75); font-size:.75rem; }
+        .dest-badge { position:absolute; top:12px; right:12px; background:var(--coral); color:#fff; font-size:.65rem; font-weight:700; padding:3px 8px; border-radius:20px; opacity:0; transform:translateY(-8px); transition:opacity .3s, transform .3s; z-index:2; }
+        .dest-card:hover .dest-badge { opacity:1; transform:translateY(0); }
+
+        .carousel-dots { display:flex; justify-content:center; gap:6px; margin-top:25px; }
+        .dot { width:8px; height:8px; border-radius:50%; background:#d0d0d0; cursor:pointer; transition:all .3s; }
+        .dot.active { width:24px; border-radius:4px; background:var(--coral); }
+
+        /* ===== TOUR PACKAGES ===== */
+        .tours-section { background:var(--light); }
+        .tours-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px; }
+        .tour-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); transition:all .35s cubic-bezier(.22,.68,0,1.2); }
+        .tour-card:hover { transform:translateY(-7px); box-shadow:0 18px 32px rgba(0,0,0,.14); }
+        .tour-img-wrap { position:relative; overflow:hidden; }
+        .tour-img-wrap img { width:100%; height:160px; object-fit:cover; transition:transform .5s; }
+        .tour-card:hover .tour-img-wrap img { transform:scale(1.09); }
+        .tour-img-wrap::after { content:'✈ Book'; position:absolute; inset:0; background:rgba(255,90,95,.78); color:#fff; font-size:.9rem; font-weight:700; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .3s; }
+        .tour-card:hover .tour-img-wrap::after { opacity:1; }
+        .tour-price-badge { position:absolute; top:10px; right:10px; background:var(--coral); color:#fff; font-size:.75rem; font-weight:700; padding:3px 8px; border-radius:3px; z-index:1; transition:transform .3s; }
+        .tour-card:hover .tour-price-badge { transform:scale(1.1); }
+        .tour-body { padding:14px; }
+        .tour-loc   { font-size:.75rem; color:var(--gray); font-weight:600; margin-bottom:4px; }
+        .tour-title { font-size:.9rem; font-weight:700; color:var(--dark); margin-bottom:8px; line-height:1.3; }
+        .tour-meta  { display:flex; align-items:center; gap:10px; font-size:.75rem; color:var(--gray); margin-bottom:12px; }
+        .btn-sm { flex:1; padding:7px 0; border-radius:4px; font-size:.75rem; font-weight:600; text-align:center; cursor:pointer; border:none; font-family:'Poppins',sans-serif; transition:all .25s; position:relative; overflow:hidden; }
+        .btn-book { background:var(--coral); color:#fff; }
+        .btn-book:hover { background:#e0474c; transform:translateY(-2px); box-shadow:0 4px 12px rgba(255,90,95,.35); }
+        .btn-view { background:transparent; border:1px solid #e0e0e0; color:var(--dark); }
+        .btn-view:hover { border-color:var(--coral); color:var(--coral); transform:translateY(-2px); }
+
+        /* ===== FUN FACTS ===== */
+        .facts-section { background:linear-gradient(135deg,var(--teal),#2db5a3); padding:70px 0; position:relative; overflow:hidden; }
+        .facts-section::before { content:''; position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=60') center/cover; opacity:.1; }
+        .facts-section::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:50px; background:var(--white); clip-path:ellipse(55% 100% at 50% 100%); }
+        .facts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; position:relative; }
+        .fact-item { text-align:center; color:#fff; }
+        .fact-num { font-size:clamp(2rem,4vw,3rem); font-weight:800; line-height:1; margin-bottom:6px; }
+        .fact-lbl { font-size:.85rem; opacity:.85; }
+        .facts-title { text-align:center; color:#fff; font-size:clamp(1.5rem,3vw,2rem); font-weight:700; margin-bottom:8px; }
+        .facts-sub   { text-align:center; color:rgba(255,255,255,.8); font-size:.9rem; margin-bottom:50px; }
+
+        /* ===== HOTELS ===== */
+        .hotels-section { background:#fff; }
+        .hotels-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px; }
+        .hotel-card { background:#fff; border-radius:10px; overflow:hidden; border:1px solid #f0f0f0; box-shadow:0 2px 10px rgba(0,0,0,.06); transition:all .35s cubic-bezier(.22,.68,0,1.2); }
+        .hotel-card:hover { transform:translateY(-7px); box-shadow:0 18px 32px rgba(0,0,0,.14); border-color:rgba(255,90,95,.2); }
+        .hotel-card img { width:100%; height:150px; object-fit:cover; transition:transform .5s; }
+        .hotel-card:hover img { transform:scale(1.07); }
+        .hotel-body { padding:14px; }
+        .hotel-loc  { font-size:.75rem; color:var(--gray); font-weight:600; margin-bottom:4px; }
+        .hotel-name { font-size:.9rem; font-weight:700; color:var(--dark); margin-bottom:6px; }
+        .hotel-stars{ color:#FFB800; font-size:.7rem; margin-bottom:6px; }
+        .hotel-desc { font-size:.75rem; color:var(--gray); line-height:1.5; margin-bottom:10px; }
+        .hotel-price{ font-size:.9rem; font-weight:700; color:var(--coral); margin-bottom:10px; }
+        .hotel-price span { font-size:.7rem; font-weight:400; color:var(--gray); }
+        .hotel-footer { display:flex; justify-content:space-between; align-items:center; font-size:.75rem; color:var(--gray); }
+
+        /* ===== WHY + TESTIMONIAL ===== */
+        .wt-section { background:var(--light); padding:80px 0; }
+        .wt-grid { display:grid; grid-template-columns:1fr 1fr; gap:50px; }
+        .why-content h2 { font-size:clamp(1.4rem,2.5vw,1.8rem); font-weight:700; margin-bottom:16px; }
+        .why-content p  { font-size:.875rem; color:var(--gray); line-height:1.8; margin-bottom:16px; }
+        .why-list { list-style:none; margin-bottom:24px; }
+        .why-list li { display:flex; align-items:flex-start; gap:10px; font-size:.85rem; color:var(--gray); margin-bottom:10px; transition:transform .2s, color .2s; }
+        .why-list li:hover { transform:translateX(7px); color:var(--dark); }
+        .why-list i { color:var(--coral); margin-top:2px; flex-shrink:0; transition:transform .2s; }
+        .why-list li:hover i { transform:scale(1.35); }
+        .btn-coral { display:inline-flex; align-items:center; gap:8px; background:var(--coral); color:#fff; padding:12px 24px; border-radius:5px; font-weight:600; font-size:.875rem; border:none; cursor:pointer; font-family:'Poppins',sans-serif; transition:all .25s; position:relative; overflow:hidden; }
+        .btn-coral::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,.16); transform:translateX(-110%) skewX(-15deg); transition:transform .4s; }
+        .btn-coral:hover::after { transform:translateX(110%) skewX(-15deg); }
+        .btn-coral:hover { background:#e0474c; transform:translateY(-3px); box-shadow:0 8px 22px rgba(255,90,95,.35); }
+        .test-area { display:flex; flex-direction:column; justify-content:center; }
+        .test-card { background:#fff; border-radius:12px; padding:30px; box-shadow:0 5px 20px rgba(0,0,0,.07); border-left:4px solid var(--coral); transition:transform .3s, box-shadow .3s; }
+        .test-card:hover { transform:translateY(-5px); box-shadow:0 14px 32px rgba(0,0,0,.1); }
+        .test-quote { font-size:3rem; color:var(--coral); line-height:1; margin-bottom:-10px; }
+        .test-text  { font-size:.9rem; color:var(--gray); line-height:1.8; font-style:italic; margin-bottom:20px; }
+        .test-author{ display:flex; align-items:center; gap:12px; }
+        .test-avatar{ width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--coral); }
+        .test-info h4 { font-size:.9rem; font-weight:700; color:var(--dark); }
+        .test-info p  { font-size:.75rem; color:var(--gray); }
+        .test-stars   { color:#FFB800; font-size:.75rem; margin-top:3px; }
+
+        /* ===== RESTAURANTS ===== */
+        .rest-section { background:#fff; }
+        .rest-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:20px; }
+        .rest-card { border-radius:10px; overflow:hidden; box-shadow:0 3px 12px rgba(0,0,0,.08); transition:all .35s cubic-bezier(.22,.68,0,1.2); background:#fff; }
+        .rest-card:hover { transform:translateY(-7px) scale(1.01); box-shadow:0 18px 32px rgba(0,0,0,.14); }
+        .rest-card .img-w { overflow:hidden; }
+        .rest-card img { width:100%; height:180px; object-fit:cover; transition:transform .5s; }
+        .rest-card:hover img { transform:scale(1.08); }
+        .rest-body  { padding:14px; }
+        .rest-name  { font-size:.95rem; font-weight:700; color:var(--dark); margin-bottom:4px; }
+        .rest-stars { color:#FFB800; font-size:.7rem; margin-bottom:6px; }
+        .rest-meta  { display:flex; justify-content:space-between; font-size:.75rem; color:var(--gray); margin-bottom:10px; }
+        .rest-footer{ display:flex; gap:8px; }
+
+        /* ===== ARTICLES ===== */
+        .art-section { background:var(--light); }
+        .art-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:24px; }
+        .art-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.06); transition:all .35s cubic-bezier(.22,.68,0,1.2); }
+        .art-card:hover { transform:translateY(-7px); box-shadow:0 18px 32px rgba(0,0,0,.12); }
+        .art-card .img-w { overflow:hidden; }
+        .art-card img { width:100%; height:180px; object-fit:cover; transition:transform .5s; }
+        .art-card:hover img { transform:scale(1.08); }
+        .art-body { padding:16px; }
+        .art-tag   { font-size:.7rem; font-weight:600; color:var(--coral); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+        .art-title { font-size:.9rem; font-weight:700; color:var(--dark); line-height:1.4; margin-bottom:8px; }
+        .art-meta  { font-size:.75rem; color:var(--gray); }
+
+        /* ===== NEWSLETTER ===== */
+        .nl-section { background:linear-gradient(135deg,#2db5a3,var(--teal)); padding:70px 0; text-align:center; position:relative; overflow:hidden; }
+        .nl-section::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.07); top:-80px; left:-80px; animation:float 8s ease-in-out infinite; }
+        .nl-section::after  { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.05); bottom:-60px; right:-60px; animation:float 6s ease-in-out infinite reverse; }
+        .nl-section h2 { font-size:clamp(1.5rem,3vw,2.2rem); font-weight:700; color:#fff; margin-bottom:10px; position:relative; }
+        .nl-section p  { color:rgba(255,255,255,.85); font-size:.9rem; margin-bottom:30px; position:relative; }
+        .nl-form { display:flex; max-width:500px; margin:0 auto; border-radius:6px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.15); position:relative; transition:transform .3s, box-shadow .3s; }
+        .nl-form:focus-within { transform:translateY(-4px); box-shadow:0 14px 36px rgba(0,0,0,.2); }
+        .nl-form input  { flex:1; padding:16px 20px; border:none; outline:none; font-family:'Poppins',sans-serif; font-size:.9rem; }
+        .nl-form button { padding:16px 28px; background:var(--dark); color:#fff; border:none; font-family:'Poppins',sans-serif; font-size:.9rem; font-weight:600; cursor:pointer; transition:background .2s; }
+        .nl-form button:hover { background:#111; }
+
+        /* ===== FOOTER ===== */
+        footer { background:#1B2A3B; color:rgba(255,255,255,.7); padding:60px 0 0; }
+        .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1.5fr; gap:40px; padding-bottom:50px; }
+        .footer-logo { font-size:1.5rem; font-weight:800; color:#fff; margin-bottom:14px; }
+        .footer-logo span { color:var(--coral); }
+        .footer-desc { font-size:.82rem; line-height:1.7; margin-bottom:20px; }
+        .socials { display:flex; gap:10px; }
+        .socials a { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.7); font-size:.85rem; transition:all .3s cubic-bezier(.22,.68,0,1.5); }
+        .socials a:hover { background:var(--coral); color:#fff; transform:translateY(-5px) scale(1.1); }
+        .footer-col h4 { color:#fff; font-size:1rem; font-weight:700; margin-bottom:20px; }
+        .flinks { list-style:none; }
+        .flinks li { margin-bottom:10px; }
+        .flinks a { font-size:.82rem; color:rgba(255,255,255,.6); transition:color .2s, padding-left .2s; }
+        .flinks a:hover { color:var(--coral); padding-left:6px; }
+        .fcontact { display:flex; align-items:flex-start; gap:10px; font-size:.82rem; margin-bottom:12px; }
+        .fcontact i { color:var(--coral); margin-top:2px; flex-shrink:0; }
+        .footer-bottom { border-top:1px solid rgba(255,255,255,.08); padding:20px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+        .footer-bottom p { font-size:.78rem; color:rgba(255,255,255,.4); }
+        .footer-bottom a { color:rgba(255,255,255,.4); font-size:.78rem; transition:color .2s; }
+        .footer-bottom a:hover { color:var(--coral); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:9999; padding:20px; opacity:0; transition:opacity .3s; }
+        .modal-overlay.active { display:flex; opacity:1; }
+        .modal-box { background:#fff; border-radius:12px; overflow:hidden; max-width:820px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 25px 60px rgba(0,0,0,.25); transform:scale(.85) translateY(30px); transition:transform .4s cubic-bezier(.22,.68,0,1.2); }
+        .modal-overlay.active .modal-box { transform:scale(1) translateY(0); }
+        .modal-hdr { background:linear-gradient(135deg,var(--coral),#e0474c); color:#fff; padding:20px 28px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:5; }
+        .modal-hdr h3 { font-size:1.2rem; font-weight:700; }
+        .modal-close { background:rgba(255,255,255,.2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all .25s; }
+        .modal-close:hover { background:rgba(255,255,255,.35); transform:rotate(90deg); }
+        .modal-body { padding:28px; display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+        .modal-img { border-radius:8px; width:100%; height:280px; object-fit:cover; }
+        .modal-placeholder { width:100%; height:280px; background:#f0f4f8; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--gray); font-size:.875rem; }
+        .modal-details { display:flex; flex-direction:column; gap:16px; }
+        .modal-block { background:#f8f9fa; border-radius:8px; padding:14px 18px; transition:background .2s; }
+        .modal-block:hover { background:#f0f2f5; }
+        .modal-lbl { font-size:.72rem; color:var(--gray); font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+        .modal-val { font-size:.95rem; color:var(--dark); font-weight:500; }
+        .modal-price { font-size:1.6rem; font-weight:800; color:var(--coral); }
+        .modal-coords { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .modal-actions { padding:0 28px 28px; display:flex; gap:12px; }
+        .modal-actions .btn-coral { flex:1; justify-content:center; }
+        .btn-outline-d { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:transparent; border:2px solid #e0e0e0; color:var(--dark); padding:12px 24px; border-radius:5px; font-weight:600; font-size:.875rem; cursor:pointer; font-family:'Poppins',sans-serif; transition:all .25s; }
+        .btn-outline-d:hover { border-color:var(--coral); color:var(--coral); transform:translateY(-2px); }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal { opacity:0; transform:translateY(40px); transition:opacity .7s cubic-bezier(.22,.68,0,1.2), transform .7s cubic-bezier(.22,.68,0,1.2); }
+        .reveal.rl { transform:translateX(-40px); }
+        .reveal.rr { transform:translateX(40px); }
+        .reveal.rz { transform:scale(.88); }
+        .reveal.visible { opacity:1 !important; transform:none !important; }
+
+        .stagger > * { opacity:0; transform:translateY(30px); transition:opacity .6s cubic-bezier(.22,.68,0,1.2), transform .6s cubic-bezier(.22,.68,0,1.2); }
+        .stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:.05s; }
+        .stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:.15s; }
+        .stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:.25s; }
+        .stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:.35s; }
+        .stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay:.45s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width:1024px) { .trust-grid { grid-template-columns:repeat(2,1fr); } .facts-grid { grid-template-columns:repeat(2,1fr); gap:30px; } .footer-grid { grid-template-columns:1fr 1fr; } .wt-grid { grid-template-columns:1fr; } }
+        @media (max-width:768px) { .nav-links { display:none; } .modal-body { grid-template-columns:1fr; } .footer-grid { grid-template-columns:1fr; } .trust-grid { grid-template-columns:1fr 1fr; } }
+        @media (max-width:480px) { .search-box { flex-direction:column; border-radius:8px; } .search-btn { width:100%; } .trust-grid { grid-template-columns:1fr; } .facts-grid { grid-template-columns:1fr 1fr; } .modal-actions { flex-direction:column; } }
     </style>
 </head>
 <body>
-    <!-- Header & Navigation -->
-    <header id="header">
-        <div class="container header-container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-globe-americas"></i>
-                </div>
-                <div class="logo-text">TourEase Pro</div>
-            </div>
-            
-            <nav class="desktop-nav">
-                <ul class="nav-links">
-                    <li><a href="#home" class="active">Home</a></li>
-                    <li><a href="#destinations">Destinations</a></li>
-                    <li><a href="#gallery">Gallery</a></li>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#testimonials">Testimonials</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-            
-            <div class="nav-buttons">
-                <a href="{{ route('login') }}" class="btn btn-outline">Log In</a>
-                <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
-            </div>
-            
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        
-        <!-- Mobile Menu -->
-        <div class="mobile-menu" id="mobileMenu">
-            <button class="close-menu" id="closeMenu">
-                <i class="fas fa-times"></i>
-            </button>
-            <ul class="nav-links">
-                <li><a href="#home" class="active">Home</a></li>
-                <li><a href="#destinations">Destinations</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#testimonials">Testimonials</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="nav-buttons">
-                <a href="{{ route('login') }}" class="btn btn-outline">Log In</a>
-                <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
-            </div>
-        </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container hero-container">
-            <div class="hero-content">
-                <h1>Transform Your Tourism Business with <span>TourEase Pro</span></h1>
-                <p>A comprehensive, cloud-based tourism management system designed to streamline operations, increase efficiency, and deliver exceptional customer experiences for travel agencies and tour operators worldwide.</p>
-                <div class="hero-buttons">
-                    <a href="{{ route('register') }}" class="btn btn-primary">
-                        <i class="fas fa-rocket"></i> Start Free Trial
-                    </a>
-                    <button class="btn btn-outline" id="heroDemoBtn">
-                        <i class="fas fa-play-circle"></i> Watch Demo
-                    </button>
-                </div>
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <div class="stat-number">500+</div>
-                        <div class="stat-label">Businesses</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">98%</div>
-                        <div class="stat-label">Satisfaction</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Support</div>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="TourEase Dashboard" onerror="this.src='https://via.placeholder.com/800x600/0066CC/FFFFFF?text=TourEase+Dashboard'">
-            </div>
-        </div>
-    </section>
+<!-- PAGE LOADER -->
+<div id="page-loader">
+    <div class="loader-logo">Tour<span>Ease</span></div>
+    <div class="loader-bar"><div class="loader-bar-inner"></div></div>
+</div>
 
-    <!-- Features Section -->
-    <section class="section features" id="features">
-        <div class="container">
-            <div class="section-title">
-                <h2>Powerful Features</h2>
-                <p>TourEase Pro provides a complete suite of tools to manage every aspect of your tourism business efficiently.</p>
-            </div>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon booking">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <h3>Advanced Booking Management</h3>
-                    <p>Handle reservations, cancellations, and scheduling with our intuitive interface. Real-time availability updates prevent overbooking and streamline operations.</p>
-                    <button class="btn btn-outline feature-learn-more">Learn More</button>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon customer">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Customer Relationship Management</h3>
-                    <p>Track customer interactions, preferences, and history to provide personalized experiences and build lasting relationships with your clients.</p>
-                    <button class="btn btn-outline feature-learn-more">Learn More</button>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon analytics">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Real-Time Analytics & Reporting</h3>
-                    <p>Make data-driven decisions with comprehensive dashboards, performance metrics, and customizable reports that highlight key business insights.</p>
-                    <button class="btn btn-outline feature-learn-more">Learn More</button>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- BACK TO TOP -->
+<button id="btt" title="Back to top"><i class="fas fa-chevron-up"></i></button>
 
-    <!-- Destinations Section -->
-    <section class="section destinations" id="destinations">
-        <div class="container">
-            <div class="section-title">
-                <h2>Popular Destinations</h2>
-                <p>Explore our featured destinations and plan your next adventure</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($destinations as $destination)
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        @if($destination->image)
-                            <img src="{{ asset('storage/' . $destination->image) }}" alt="{{ $destination->name }}" class="w-full h-48 object-cover">
-                        @else
-                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                <span class="text-gray-400">No Image</span>
-                            </div>
-                        @endif
-
-                        <div class="p-6">
-                            <h3 class="text-xl font-semibold mb-2">{{ $destination->name }}</h3>
-                            <p class="text-gray-600 mb-2">📍 {{ $destination->location }}</p>
-                            <p class="text-gray-700 mb-4">{{ Str::limit($destination->description, 100) }}</p>
-
-                            @if($destination->price)
-                                <p class="text-lg font-bold text-blue-600 mb-4">₱{{ number_format($destination->price, 2) }}</p>
-                            @endif
-
-                            <div class="flex gap-2">
-                                <button data-destination-id="{{ $destination->id }}"
-                                        data-destination-name="{{ $destination->name }}"
-                                        data-destination-location="{{ $destination->location }}"
-                                        data-destination-description="{{ $destination->description }}"
-                                        data-destination-price="{{ $destination->price ? '₱' . number_format($destination->price, 2) : '' }}"
-                                        data-destination-image="{{ $destination->image ? asset('storage/' . $destination->image) : '' }}"
-                                        data-destination-latitude="{{ $destination->latitude }}"
-                                        data-destination-longitude="{{ $destination->longitude }}"
-                                        class="btn btn-outline flex-1 text-center view-details-btn">
-                                    <i class="fas fa-eye"></i> View Details
-                                </button>
-                                
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-span-3 text-center py-8 text-gray-500">
-                        No destinations available at the moment.
-                    </div>
-                @endforelse
-            </div>
-
-            <div class="text-center mt-8">
-                <a href="{{ route('destinations.index') }}" class="btn btn-outline">
-                    View All Destinations
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section class="section gallery" id="gallery">
-        <div class="container">
-            <div class="section-title">
-                <h2>Photo Gallery</h2>
-                <p>Discover the beauty of our destinations through stunning photography</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                @forelse($galleries as $gallery)
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <img src="{{ asset('storage/' . $gallery->image_path) }}" alt="{{ $gallery->title }}" class="w-full h-48 object-cover">
-
-                        <div class="p-4">
-                            <h3 class="font-semibold text-gray-900 text-sm mb-1">{{ $gallery->title }}</h3>
-                            @if($gallery->description)
-                                <p class="text-gray-600 text-xs">{{ Str::limit($gallery->description, 50) }}</p>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-span-4 text-center py-8 text-gray-500">
-                        No photos available at the moment.
-                    </div>
-                @endforelse
-            </div>
-
-            <div class="text-center mt-8">
-                <a href="{{ route('gallery.index') }}" class="btn btn-outline">
-                    View Full Gallery
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section class="section about" id="about">
-        <div class="container about-container">
-            <div class="about-content">
-                <h2>Why Choose TourEase Pro?</h2>
-                <p>TourEase Pro was developed by tourism industry veterans who understand the unique challenges faced by travel businesses. Our platform is the result of 10+ years of research and development.</p>
-                <p>We combine cutting-edge technology with deep industry expertise to deliver a solution that adapts to your workflow, not the other way around.</p>
-                <ul class="about-list">
-                    <li><i class="fas fa-check-circle"></i> <strong>Cloud-Based:</strong> Access your data securely from anywhere, anytime</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Scalable:</strong> Grows with your business from startup to enterprise</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Integrated Payments:</strong> Process transactions securely with multiple payment options</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>Multi-language Support:</strong> Serve customers in their preferred language</li>
-                </ul>
-                <button class="btn btn-secondary" id="readStoryBtn">
-                    <i class="fas fa-book-open"></i> Read Our Story
-                </button>
-            </div>
-            <div class="about-image">
-                <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="TourEase Team" onerror="this.src='https://via.placeholder.com/800x600/00A859/FFFFFF?text=TourEase+Team'">
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="section testimonials" id="testimonials">
-        <div class="container">
-            <div class="section-title">
-                <h2>What Our Clients Say</h2>
-                <p>Hear from tourism businesses that have transformed their operations with TourEase Pro.</p>
-            </div>
-            
-            <div class="testimonial-slider">
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        TourEase Pro has revolutionized how we manage our tours. Bookings are up 40% and operational efficiency has improved dramatically. The customer support team is exceptional.
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" alt="Sarah Johnson" onerror="this.src='https://via.placeholder.com/60x60/FF6B35/FFFFFF?text=SJ'">
-                        </div>
-                        <div class="author-info">
-                            <h4>Sarah Johnson</h4>
-                            <p>CEO, Adventure Tours Co.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta" id="cta">
-        <div class="container">
-            <h2>Ready to Transform Your Tourism Business?</h2>
-            <p>Join over 500 tourism businesses worldwide that trust TourEase Pro to streamline their operations and deliver exceptional experiences.</p>
-            <div class="cta-buttons">
-                <a href="{{ route('register') }}" class="btn btn-cta">
-                    <i class="fas fa-rocket"></i> Start Your Free Trial
-                </a>
-                <button class="btn btn-outline" style="background-color: transparent; color: white; border-color: white;" id="ctaScheduleBtn">
-                    <i class="fas fa-calendar-alt"></i> Schedule a Demo
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>TourEase Pro</h3>
-                    <p>The leading tourism management system for travel agencies, tour operators, and destination management companies worldwide.</p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#testimonials">Testimonials</a></li>
-                        <li><a href="#">Pricing</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">API Reference</a></li>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Community</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> 123 Tourism Avenue, Suite 1000</p>
-                    <p><i class="fas fa-phone"></i> +1 (555) 123-TOUR</p>
-                    <p><i class="fas fa-envelope"></i> info@toureasepro.com</p>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                <p>&copy; 2023 TourEase Pro. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Destination Details Modal -->
-    <div class="modal-overlay" id="destinationModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title" id="modalTitle">Destination Details</div>
-                <button class="modal-close" id="modalCloseBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="modal-content">
-                <div class="modal-grid">
-                    <!-- Image Section -->
-                    <div class="modal-image-container">
-                        <img id="modalImage" src="" alt="Destination Image" class="modal-image">
-                        <div id="modalImagePlaceholder" class="modal-image-placeholder" style="display: none;">
-                            <i class="fas fa-image"></i> No Image Available
-                        </div>
-                    </div>
-                    
-                    <!-- Details Section -->
-                    <div class="modal-details">
-                        <!-- Name and Location -->
-                        <div class="detail-section">
-                            <span class="detail-label">Destination</span>
-                            <h3 id="modalName" class="detail-value" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 5px;"></h3>
-                            <span class="detail-label">Location</span>
-                            <p id="modalLocation" class="detail-value" style="color: #0066CC;">
-                                <i class="fas fa-map-marker-alt"></i> <span id="modalLocationText"></span>
-                            </p>
-                        </div>
-                        
-                        <!-- Price -->
-                        <div class="detail-section">
-                            <span class="detail-label">Price</span>
-                            <div id="modalPrice" class="price-value">Not specified</div>
-                        </div>
-                        
-                        <!-- Description -->
-                        <div class="detail-section">
-                            <span class="detail-label">Description</span>
-                            <p id="modalDescription" class="detail-value"></p>
-                        </div>
-                        
-                        <!-- Coordinates -->
-                        <div class="detail-section">
-                            <span class="detail-label">Coordinates</span>
-                            <div class="coordinates">
-                                <div class="coordinate-item">
-                                    <span class="detail-label">Latitude</span>
-                                    <div id="modalLatitude" class="detail-value">N/A</div>
-                                </div>
-                                <div class="coordinate-item">
-                                    <span class="detail-label">Longitude</span>
-                                    <div id="modalLongitude" class="detail-value">N/A</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="modal-actions">
-                    <a href="{{ route('login') }}" class="btn btn-primary">
-                        <i class="fas fa-calendar-check"></i> Book Now
-                    </a>
-                    <button class="btn btn-outline" id="modalCloseBtn2">
-                        <i class="fas fa-times"></i> Close
-                    </button>
-                </div>
-            </div>
+<!-- NAVBAR -->
+<nav id="navbar">
+    <div class="nav-container">
+        <div class="logo">Tour<span>Ease</span></div>
+        <ul class="nav-links">
+            <li><a href="#home"         class="nav-link">Home</a></li>
+            <li><a href="#about"        class="nav-link">About</a></li>
+            <li><a href="#destinations" class="nav-link">Tour</a></li>
+            <li><a href="#gallery"      class="nav-link">Hotels</a></li>
+            <li><a href="#features"     class="nav-link">Blog</a></li>
+            <li><a href="#contact"      class="nav-link">Contact</a></li>
+        </ul>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="{{ route('register') }}" class="nav-btn">Get Started</a>
         </div>
     </div>
+</nav>
 
-    <script>
-        // Header scroll effect
-        const header = document.getElementById('header');
-        const updateHeader = () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        };
-        window.addEventListener('scroll', updateHeader);
-        updateHeader(); // Initialize on load
+<!-- HERO -->
+<section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-particle hp1"></div>
+    <div class="hero-particle hp2"></div>
+    <div class="hero-particle hp3"></div>
+    <div class="hero-particle hp4"></div>
+    <div class="hero-content">
+        <h1>Explore<span class="highlight">your amazing city</span></h1>
+        <p class="hero-sub">Get best places to stay, eat, discover and travel in Philippines</p>
+        <div class="search-box">
+            <div class="search-ig"><i class="fas fa-search"></i><input type="text" placeholder="Find your location here..."></div>
+            <div class="sdiv"></div>
+            <div class="search-ig" style="max-width:160px;"><i class="fas fa-map-marker-alt"></i><input type="text" placeholder="Where"></div>
+            <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+        <div class="filter-tabs">
+            <button class="filter-tab active"><i class="fas fa-utensils"></i> Restaurant</button>
+            <button class="filter-tab"><i class="fas fa-hotel"></i> Hotels</button>
+            <button class="filter-tab"><i class="fas fa-plane"></i> Places</button>
+            <button class="filter-tab"><i class="fas fa-ship"></i> Cruising</button>
+        </div>
+    </div>
+    <div class="scroll-hint"><div class="scroll-mouse"></div><span>Scroll</span></div>
+</section>
 
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const closeMenu = document.getElementById('closeMenu');
-        
-        const openMobileMenu = () => {
-            mobileMenu.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-        
-        const closeMobileMenu = () => {
-            mobileMenu.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        };
-        
-        mobileMenuBtn.addEventListener('click', openMobileMenu);
-        closeMenu.addEventListener('click', closeMobileMenu);
+<!-- TRUST -->
+<section class="trust-section">
+    <div class="trust-grid stagger">
+        <div class="trust-item reveal"><div class="trust-icon"><i class="fas fa-tag"></i></div><h4>Best Price Guarantee</h4><p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p></div>
+        <div class="trust-item reveal"><div class="trust-icon"><i class="fas fa-heart"></i></div><h4>Travelers Love Us</h4><p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p></div>
+        <div class="trust-item reveal"><div class="trust-icon"><i class="fas fa-user-tie"></i></div><h4>Best Travel Agent</h4><p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p></div>
+        <div class="trust-item reveal"><div class="trust-icon"><i class="fas fa-headset"></i></div><h4>Our Dedicated Support</h4><p>A small river named Duden flows by their place and supplies it with the necessary regelialia.</p></div>
+    </div>
+</section>
 
-        // Close mobile menu when clicking on links
-        document.querySelectorAll('.mobile-menu a').forEach(link => {
-            link.addEventListener('click', closeMobileMenu);
-        });
+<!-- FEATURED DESTINATIONS -->
+<section class="section destinations-section" id="destinations">
+    <div class="container">
+        <div class="sec-hdr">
+            <div class="reveal rl"><div class="sec-label">Hello World</div><h2 class="sec-head"><span>Featured</span> Destination</h2></div>
+            <a href="{{ route('destinations.index') }}" class="view-all reveal rr">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="dest-grid stagger">
+            @forelse($destinations as $destination)
+            <div class="dest-card reveal"
+                 data-id="{{ $destination->id }}"
+                 data-name="{{ $destination->name }}"
+                 data-location="{{ $destination->location }}"
+                 data-description="{{ $destination->description }}"
+                 data-price="{{ $destination->price ? '₱' . number_format($destination->price, 2) : '' }}"
+                 data-image="{{ $destination->image ? asset('storage/' . $destination->image) : '' }}"
+                 data-lat="{{ $destination->latitude }}"
+                 data-lng="{{ $destination->longitude }}">
+                <div class="dest-badge">View</div>
+                @if($destination->image)
+                    <img src="{{ asset('storage/' . $destination->image) }}" alt="{{ $destination->name }}" onerror="this.src='https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80'">
+                @else
+                    <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80" alt="{{ $destination->name }}">
+                @endif
+                <div class="dest-overlay"><h4>{{ $destination->name }}</h4><p>{{ $destination->location }}</p></div>
+            </div>
+            @empty
+            <div class="dest-card reveal"><div class="dest-badge">View</div><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" alt="Australia"><div class="dest-overlay"><h4>Australia</h4><p>15 listing</p></div></div>
+            <div class="dest-card reveal"><div class="dest-badge">View</div><img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80" alt="Paris"><div class="dest-overlay"><h4>Paris, Italy</h4><p>15 listing</p></div></div>
+            <div class="dest-card reveal"><div class="dest-badge">View</div><img src="https://images.unsplash.com/photo-1543872084-c7bd3822856f?w=400&q=80" alt="Tokyo"><div class="dest-overlay"><h4>Tokyo, Japan</h4><p>15 listing</p></div></div>
+            <div class="dest-card reveal"><div class="dest-badge">View</div><img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&q=80" alt="San Francisco"><div class="dest-overlay"><h4>San Francisco, USA</h4><p>15 listing</p></div></div>
+            @endforelse
+        </div>
+        <div class="carousel-dots reveal"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+</section>
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target) && mobileMenu.classList.contains('active')) {
-                closeMobileMenu();
-            }
-        });
-
-        // Demo button functionality
-        document.getElementById('heroDemoBtn').addEventListener('click', () => {
-            alert('Demo video would play here. Redirecting to demo page...');
-            closeMobileMenu();
-        });
-
-        document.getElementById('ctaScheduleBtn').addEventListener('click', () => {
-            alert('Scheduling functionality would open here.');
-            closeMobileMenu();
-        });
-
-        // Read story button
-        document.getElementById('readStoryBtn').addEventListener('click', () => {
-            alert('Redirecting to our story page...');
-        });
-
-        // Feature learn more buttons
-        document.querySelectorAll('.feature-learn-more').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const featureTitle = e.target.closest('.feature-card').querySelector('h3').textContent;
-                alert(`Loading more information about: ${featureTitle}`);
-            });
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    const headerHeight = header.offsetHeight;
-                    const targetPosition = targetElement.offsetTop - headerHeight;
-                    
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                    
-                    // Update active nav link
-                    document.querySelectorAll('.nav-links a').forEach(link => {
-                        link.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                }
-            });
-        });
-
-        // Update active nav link on scroll
-        const sections = document.querySelectorAll('section[id]');
-        const updateActiveLink = () => {
-            const scrollPosition = window.scrollY + 100;
-            
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.offsetHeight;
-                const sectionId = section.getAttribute('id');
-                
-                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                    document.querySelectorAll('.nav-links a').forEach(link => {
-                        link.classList.remove('active');
-                        if (link.getAttribute('href') === `#${sectionId}`) {
-                            link.classList.add('active');
-                        }
-                    });
-                }
-            });
-        };
-        
-        window.addEventListener('scroll', updateActiveLink);
-
-        // Image error handling
-        document.querySelectorAll('img').forEach(img => {
-            img.addEventListener('error', function() {
-                const altText = this.alt || 'Image';
-                this.src = `https://via.placeholder.com/800x600/0066CC/FFFFFF?text=${encodeURIComponent(altText)}`;
-            });
-        });
+<!-- TOUR PACKAGES -->
+<section class="section tours-section" id="features">
+    <div class="container">
+        <div class="sec-hdr">
+            <div class="reveal rl"><div class="sec-label">Current Offers</div><h2 class="sec-head">Top <span>Tour Packages</span></h2></div>
+            <a href="{{ route('destinations.index') }}" class="view-all reveal rr">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="tours-grid stagger">
+            @forelse($destinations->take(5) as $destination)
+            <div class="tour-card reveal">
+                <div class="tour-img-wrap">
+                    @if($destination->image)
+                        <img src="{{ asset('storage/' . $destination->image) }}" alt="{{ $destination->name }}" onerror="this.src='https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80'">
+                    @else
+                        <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80" alt="{{ $destination->name }}">
+                    @endif
+                    @if($destination->price)<div class="tour-price-badge">₱{{ number_format($destination->price, 0) }}</div>@endif
+                </div>
+                <div class="tour-body">
+                    <div class="tour-loc">📍 {{ $destination->location }}</div>
+                    <div class="tour-title">{{ $destination->name }}</div>
+                    <div class="tour-meta"><span><i class="fas fa-star" style="color:#FFB800"></i> 4.8</span><span><i class="fas fa-clock"></i> 5 Days</span></div>
+                    <p style="font-size:.75rem;color:var(--gray);margin-bottom:12px;line-height:1.5;">{{ Str::limit($destination->description, 80) }}</p>
+                </div>
+                <div style="padding:0 14px 14px;display:flex;gap:8px;">
+                    <a href="{{ route('login') }}" class="btn-sm btn-book" style="flex:1;text-align:center;display:block;padding:7px 0;border-radius:4px;font-size:.75rem;font-weight:600;font-family:'Poppins',sans-serif;">Book Now</a>
+                    <button class="btn-sm btn-view view-details-btn"
+                            data-id="{{ $destination->id }}" data-name="{{ $destination->name }}"
+                            data-location="{{ $destination->location }}" data-description="{{ $destination->description }}"
+                            data-price="{{ $destination->price ? '₱' . number_format($destination->price, 2) : '' }}"
+                            data-image="{{ $destination->image ? asset('storage/' . $destination->image) : '' }}"
+                            data-lat="{{ $destination->latitude }}" data-lng="{{ $destination->longitude }}">Details</button>
+                </div>
+            </div>
+            @empty
+            @php $demoTours=[['Paris, Italy','$200','https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&q=80'],['Paris, Italy','$300','https://images.unsplash.com/photo-1543872084-c7bd3822856f?w=400&q=80'],['Paris, Italy','$400','https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=400&q=80'],['Paris, Italy','$600','https://images.unsplash.com/photo-1470004914212-05527e49370b?w=400&q=80'],['Paris, Italy','$500','https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&q=80']]; @endphp
+            @foreach($demoTours as $demo)
+            <div class="tour-card reveal">
+                <div class="tour-img-wrap"><img src="{{ $demo[2] }}" alt="{{ $demo[0] }}"><div class="tour-price-badge">{{ $demo[1] }}</div></div>
+                <div class="tour-body">
+                    <div class="tour-loc">📍 {{ $demo[0] }}</div>
+                    <div class="tour-title">The Beauty Of Paris</div>
+                    <div class="tour-meta"><span><i class="fas fa-star" style="color:#FFB800"></i> 4.5</span><span><i class="fas fa-clock"></i> 3 Days</span></div>
+                    <p style="font-size:.75rem;color:var(--gray);margin-bottom:12px;line-height:1.5;">Explore amazing destinations with our guided tour packages.</p>
+                </div>
+                <div style="padding:0 14px 14px;display:flex;gap:8px;">
+                    <a href="{{ route('login') }}" class="btn-sm btn-book" style="flex:1;text-align:center;display:block;padding:7px 0;border-radius:4px;font-size:.75rem;font-weight:600;font-family:'Poppins',sans-serif;">Book Now</a>
+                    <button class="btn-sm btn-view">Details</button>
+                </div>
+            </div>
+            @endforeach
+            @endforelse
+        </div>
+    </div>
+</section>
 
 
+<!-- POPULAR HOTELS -->
+<section class="section hotels-section" id="gallery">
+    <div class="container">
+        <div class="sec-hdr">
+            <div class="reveal rl"><div class="sec-label">Luxury Offers</div><h2 class="sec-head">Popular <span>Hotels & Rooms</span></h2></div>
+            <a href="{{ route('gallery.index') }}" class="view-all reveal rr">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="hotels-grid stagger">
+            @forelse($galleries->take(5) as $gallery)
+            <div class="hotel-card reveal">
+                <img src="{{ asset('storage/' . $gallery->image_path) }}" alt="{{ $gallery->title }}" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80'">
+                <div class="hotel-body">
+                    <div class="hotel-loc">📍 Philippines</div>
+                    <div class="hotel-name">{{ $gallery->title }}</div>
+                    <div class="hotel-stars">★★★★★</div>
+                    <div class="hotel-desc">{{ Str::limit($gallery->description ?? 'Beautiful hotel with amazing views and top-class amenities.', 70) }}</div>
+                    <div class="hotel-price">$42 <span>/ night</span></div>
+                    <div class="hotel-footer"><span><i class="fas fa-eye"></i> 2 Reviews</span><a href="{{ route('login') }}" style="color:var(--coral);font-weight:600;font-size:.75rem;">Book Now</a></div>
+                </div>
+            </div>
+            @empty
+            @foreach(range(1,5) as $i)
+            <div class="hotel-card reveal">
+                <img src="https://images.unsplash.com/photo-{{ ['1566073771259-6a8506099945','1564501049412-61d2ac2d9e1f','1571003123894-1f0594d2b5d9','1596436889106-be35e843f974','1611892440504-42a792e24d32'][$i-1] }}?w=400&q=80" alt="Hotel">
+                <div class="hotel-body">
+                    <div class="hotel-loc">📍 Paris, Italy</div>
+                    <div class="hotel-name">Hotel Ruby</div>
+                    <div class="hotel-stars">★★★★★</div>
+                    <div class="hotel-desc">Far far away, behind the mountains, far from the countries.</div>
+                    <div class="hotel-price">$42 <span>/ night</span></div>
+                    <div class="hotel-footer"><span><i class="fas fa-eye"></i> 2 Reviews</span><a href="{{ route('login') }}" style="color:var(--coral);font-weight:600;font-size:.75rem;">Book Now</a></div>
+                </div>
+            </div>
+            @endforeach
+            @endforelse
+        </div>
+    </div>
+</section>
 
-        // Destination Modal Functions
-        function openDestinationModal(id, name, location, description, price, image, latitude, longitude) {
-            // Set modal content
-            document.getElementById('modalTitle').textContent = name;
-            document.getElementById('modalName').textContent = name;
-            document.getElementById('modalLocationText').textContent = location;
-            document.getElementById('modalDescription').textContent = description;
-            
-            // Handle price display
-            const priceElement = document.getElementById('modalPrice');
-            if (price && price !== '') {
-                priceElement.textContent = price;
-                priceElement.classList.add('price-value');
-            } else {
-                priceElement.textContent = 'Not specified';
-                priceElement.classList.remove('price-value');
-                priceElement.style.fontSize = '1rem';
-                priceElement.style.color = '#718096';
-            }
-            
-            // Handle image display
-            const modalImage = document.getElementById('modalImage');
-            const modalImagePlaceholder = document.getElementById('modalImagePlaceholder');
-            
-            if (image && image !== '') {
-                modalImage.src = image;
-                modalImage.alt = name;
-                modalImage.style.display = 'block';
-                modalImagePlaceholder.style.display = 'none';
-                
-                // Add error handling for modal image
-                modalImage.onerror = function() {
-                    this.style.display = 'none';
-                    modalImagePlaceholder.style.display = 'flex';
-                };
-            } else {
-                modalImage.style.display = 'none';
-                modalImagePlaceholder.style.display = 'flex';
-            }
-            
-            // Set coordinates
-            document.getElementById('modalLatitude').textContent = latitude || 'N/A';
-            document.getElementById('modalLongitude').textContent = longitude || 'N/A';
-            
-            // Show modal
-            const modal = document.getElementById('destinationModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Focus for accessibility
-            setTimeout(() => {
-                modal.querySelector('.modal-close').focus();
-            }, 100);
-        }
 
-        function closeDestinationModal() {
-            const modal = document.getElementById('destinationModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            
-            // Return focus to the button that opened the modal
-            const activeElement = document.activeElement;
-            if (activeElement && activeElement.classList.contains('view-details-btn')) {
-                setTimeout(() => {
-                    activeElement.focus();
-                }, 100);
-            }
-        }
+<!-- RESTAURANTS -->
+<section class="section rest-section">
+    <div class="container">
+        <div class="sec-hdr">
+            <div class="reveal rl"><div class="sec-label">Latest Offers</div><h2 class="sec-head">Popular <span>Restaurants</span></h2></div>
+            <a href="{{ route('destinations.index') }}" class="view-all reveal rr">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="rest-grid stagger">
+            @foreach(range(1,4) as $i)
+            <div class="rest-card reveal">
+                <div class="img-w"><img src="{{ ['https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80','https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80','https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80','https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&q=80'][$i-1] }}" alt="Restaurant"></div>
+                <div class="rest-body">
+                    <div class="rest-name">Luxury Restaurant</div>
+                    <div class="rest-stars">★★★★★</div>
+                    <div class="rest-meta"><span>📍 Paris, Italy</span><span><i class="fas fa-eye"></i> 2 Reviews</span></div>
+                    <div class="rest-footer">
+                        <a href="{{ route('login') }}" style="background:var(--coral);color:white;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:4px;font-family:'Poppins',sans-serif;transition:transform .2s;">Book Now</a>
+                        <button class="btn-sm btn-view" style="max-width:90px;">Details</button>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 
-        // Modal event listeners
-        document.getElementById('modalCloseBtn').addEventListener('click', closeDestinationModal);
-        document.getElementById('modalCloseBtn2').addEventListener('click', closeDestinationModal);
+<!-- ARTICLES -->
+<section class="section art-section">
+    <div class="container">
+        <div class="sec-hdr">
+            <div class="reveal rl"><h2 class="sec-head">Tips & <span>Articles</span></h2></div>
+            <a href="#" class="view-all reveal rr">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="art-grid stagger">
+            @foreach(range(1,4) as $i)
+            <div class="art-card reveal">
+                <div class="img-w"><img src="{{ ['https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500&q=80','https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=500&q=80','https://images.unsplash.com/photo-1543872084-c7bd3822856f?w=500&q=80','https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=500&q=80'][$i-1] }}" alt="Article"></div>
+                <div class="art-body">
+                    <div class="art-tag">Travel Tips</div>
+                    <div class="art-title">Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life</div>
+                    <div class="art-meta"><i class="fas fa-calendar"></i> May 1, 2024</div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 
-        // Close modal when clicking outside
-        document.getElementById('destinationModal').addEventListener('click', (e) => {
-            if (e.target.id === 'destinationModal') {
-                closeDestinationModal();
-            }
-        });
+<!-- NEWSLETTER -->
+<section class="nl-section" id="contact">
+    <div class="container" style="position:relative;z-index:1;">
+        <h2 class="reveal">Subscribe to our Newsletter</h2>
+        <p class="reveal">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia</p>
+        <div class="nl-form reveal rz">
+            <input type="email" placeholder="Enter your email address">
+            <button type="button">Subscribe</button>
+        </div>
+    </div>
+</section>
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('destinationModal').classList.contains('active')) {
-                closeDestinationModal();
-            }
-            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
-                closeMobileMenu();
-            }
-        });
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="reveal rl">
+                <div class="footer-logo">Tour<span>Ease</span></div>
+                <p class="footer-desc">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                <div class="socials"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div>
+            </div>
+            <div class="footer-col reveal"><h4>Information</h4><ul class="flinks"><li><a href="#">About</a></li><li><a href="#">Services</a></li><li><a href="#">Team Add-O-Collect</a></li><li><a href="#">Latest Events</a></li><li><a href="#">Contact us</a></li></ul></div>
+            <div class="footer-col reveal"><h4>Customer Support</h4><ul class="flinks"><li><a href="#">FAQ</a></li><li><a href="#">Payment Options</a></li><li><a href="#">Booking Tips</a></li><li><a href="#">How it Works</a></li><li><a href="#">Contact us</a></li></ul></div>
+            <div class="footer-col reveal rr">
+                <h4>Have a Question?</h4>
+                <div class="fcontact"><i class="fas fa-map-marker-alt"></i><span>203 Fake St. Mountain View, San Francisco, California, USA</span></div>
+                <div class="fcontact"><i class="fas fa-phone"></i><span>+1 502 500 35</span></div>
+                <div class="fcontact"><i class="fas fa-envelope"></i><span>info@toureasepro.com</span></div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright &copy; 2024 All rights reserved | TourEase Pro</p>
+            <div style="display:flex;gap:16px;"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+        </div>
+    </div>
+</footer>
 
-        // Add event listeners to View Details buttons
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.view-details-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const id = button.getAttribute('data-destination-id');
-                    const name = button.getAttribute('data-destination-name');
-                    const location = button.getAttribute('data-destination-location');
-                    const description = button.getAttribute('data-destination-description');
-                    const price = button.getAttribute('data-destination-price');
-                    const image = button.getAttribute('data-destination-image');
-                    const latitude = button.getAttribute('data-destination-latitude');
-                    const longitude = button.getAttribute('data-destination-longitude');
+<!-- MODAL -->
+<div class="modal-overlay" id="destinationModal">
+    <div class="modal-box">
+        <div class="modal-hdr">
+            <h3 id="modalTitle">Destination Details</h3>
+            <button class="modal-close" id="modalCloseBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div>
+                <img id="modalImage" src="" alt="" class="modal-img" style="display:none;">
+                <div id="modalPlaceholder" class="modal-placeholder"><i class="fas fa-image" style="margin-right:8px;"></i> No Image Available</div>
+            </div>
+            <div class="modal-details">
+                <div class="modal-block">
+                    <div class="modal-lbl">Destination</div>
+                    <div class="modal-val" id="modalName" style="font-size:1.2rem;font-weight:700;"></div>
+                    <div class="modal-lbl" style="margin-top:8px;">Location</div>
+                    <div class="modal-val" style="color:var(--coral);">📍 <span id="modalLocation"></span></div>
+                </div>
+                <div class="modal-block"><div class="modal-lbl">Price</div><div class="modal-price" id="modalPrice">Not specified</div></div>
+                <div class="modal-block"><div class="modal-lbl">Description</div><div class="modal-val" id="modalDescription" style="font-size:.875rem;line-height:1.7;"></div></div>
+                <div class="modal-block">
+                    <div class="modal-lbl">Coordinates</div>
+                    <div class="modal-coords">
+                        <div style="background:#fff;padding:10px;border-radius:5px;border:1px solid #eee;"><div class="modal-lbl">Latitude</div><div class="modal-val" id="modalLat">N/A</div></div>
+                        <div style="background:#fff;padding:10px;border-radius:5px;border:1px solid #eee;"><div class="modal-lbl">Longitude</div><div class="modal-val" id="modalLng">N/A</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <a href="{{ route('login') }}" class="btn-coral"><i class="fas fa-calendar-check"></i> Book Now</a>
+            <button class="btn-outline-d" id="modalCloseBtn2"><i class="fas fa-times"></i> Close</button>
+        </div>
+    </div>
+</div>
 
-                    openDestinationModal(id, name, location, description, price, image, latitude, longitude);
-                });
-                
-                // Add keyboard support
-                button.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        button.click();
-                    }
-                });
-            });
-            
-            // Initialize active link
-            updateActiveLink();
-        });
+<script>
+// PAGE LOADER
+window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 1300));
 
-        // Prevent body scroll when modal is open
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    const modal = document.getElementById('destinationModal');
-                    if (modal.classList.contains('active')) {
-                        document.body.style.overflow = 'hidden';
-                    } else if (!mobileMenu.classList.contains('active')) {
-                        document.body.style.overflow = 'auto';
-                    }
-                }
-            });
-        });
+// NAVBAR + BACK TO TOP
+const navbar = document.getElementById('navbar');
+const btt = document.getElementById('btt');
+window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+    btt.classList.toggle('show', window.scrollY > 400);
+});
+btt.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-        observer.observe(document.getElementById('destinationModal'), {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-    </script>
+// FILTER TABS
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+    });
+});
+
+// SEARCH RIPPLE
+document.getElementById('searchBtn').addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+});
+
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+});
+
+// DESTINATION CLICK
+document.querySelectorAll('.dest-card').forEach(card => {
+    card.addEventListener('click', () => {
+        if (!card.dataset.name) return;
+        openModal(card.dataset.name, card.dataset.location, card.dataset.description,
+                  card.dataset.price, card.dataset.image, card.dataset.lat, card.dataset.lng);
+    });
+});
+
+// VIEW DETAILS BUTTONS
+document.querySelectorAll('.view-details-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openModal(btn.dataset.name, btn.dataset.location, btn.dataset.description,
+                  btn.dataset.price, btn.dataset.image, btn.dataset.lat, btn.dataset.lng);
+    });
+});
+
+// MODAL
+function openModal(name, location, description, price, image, lat, lng) {
+    document.getElementById('modalTitle').textContent = name || 'Destination Details';
+    document.getElementById('modalName').textContent = name || '';
+    document.getElementById('modalLocation').textContent = location || '';
+    document.getElementById('modalDescription').textContent = description || '';
+    const priceEl = document.getElementById('modalPrice');
+    if (price && price !== '') { priceEl.textContent = price; priceEl.className = 'modal-price'; }
+    else { priceEl.textContent = 'Not specified'; priceEl.style.cssText = 'font-size:1rem;color:var(--gray);'; }
+    const img = document.getElementById('modalImage'), ph = document.getElementById('modalPlaceholder');
+    if (image && image !== '') {
+        img.src = image; img.style.display = 'block'; ph.style.display = 'none';
+        img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+    } else { img.style.display = 'none'; ph.style.display = 'flex'; }
+    document.getElementById('modalLat').textContent = lat || 'N/A';
+    document.getElementById('modalLng').textContent = lng || 'N/A';
+    const modal = document.getElementById('destinationModal');
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('active'));
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    const modal = document.getElementById('destinationModal');
+    modal.classList.remove('active');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    document.body.style.overflow = '';
+}
+document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+document.getElementById('modalCloseBtn2').addEventListener('click', closeModal);
+document.getElementById('destinationModal').addEventListener('click', e => { if (e.target.id === 'destinationModal') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// SCROLL REVEAL
+const ro = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); } }), { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+const so = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); so.unobserve(e.target); } }), { threshold: 0.1 });
+document.querySelectorAll('.stagger').forEach(el => so.observe(el));
+
+// ANIMATED COUNTER
+function animCounter(el, target) {
+    const dur = 2000, start = performance.now();
+    const tick = now => {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(ease * target).toLocaleString();
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString();
+    };
+    requestAnimationFrame(tick);
+}
+const factObs = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.querySelectorAll('.fact-num[data-target]').forEach(el => animCounter(el, +el.dataset.target)); factObs.unobserve(e.target); }
+}), { threshold: 0.3 });
+const fs = document.querySelector('.facts-section');
+if (fs) factObs.observe(fs);
+
+// CAROUSEL DOTS
+document.querySelectorAll('.carousel-dots').forEach(dots => {
+    dots.querySelectorAll('.dot').forEach(dot => {
+        dot.addEventListener('click', () => { dots.querySelectorAll('.dot').forEach(d => d.classList.remove('active')); dot.classList.add('active'); });
+    });
+});
+</script>
 </body>
 </html>

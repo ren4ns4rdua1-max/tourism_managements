@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destinations | Travel Management</title>
+    <title>Tourist | Travel Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -179,7 +179,7 @@
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
                                     <i class="fas fa-map-marked-alt mr-3 text-primary-600 dark:text-primary-400"></i>
-                                    Travel Destinations
+                                    Tourist Destinations
                                     <span class="ml-3 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold px-3 py-1 rounded-full">EXPLORE</span>
                                 </h1>
                                 
