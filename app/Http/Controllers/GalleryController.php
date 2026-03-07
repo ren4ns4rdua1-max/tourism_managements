@@ -20,6 +20,16 @@ class GalleryController extends Controller
         return view('gallery.index', compact('galleries'));
     }
 
+    /**
+     * User-facing gallery index (view-only for regular users)
+     */
+    public function userIndex()
+    {
+        // Show all gallery items for users
+        $galleries = Gallery::with('user')->latest()->paginate(12);
+        return view('gallery.user-index', compact('galleries'));
+    }
+
     public function create()
     {
         return view('gallery.create');

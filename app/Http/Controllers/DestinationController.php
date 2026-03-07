@@ -16,6 +16,15 @@ class DestinationController extends Controller
     return view('destinations.index', compact('destinations'));
 }
 
+/**
+ * User-facing destination index (read-only for regular users)
+ */
+public function userIndex()
+{
+    $destinations = Destination::where('is_active', true)->get();
+    return view('destinations.user-index', compact('destinations'));
+}
+
 public function create()
 {
     return view('destinations.create');

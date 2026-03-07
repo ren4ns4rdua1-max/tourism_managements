@@ -9,6 +9,7 @@ use App\Http\Controllers\HotelController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UtilityController;
+use App\Http\Controllers\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 */
 
 Route::middleware(['auth', 'role:admin,manager'])->group(function () {
+    // Booking management routes
+    Route::get('/manage-bookings', [BookingController::class, 'manageBookings'])
+        ->name('bookings.manage.index');
+    Route::post('/manage-bookings/{booking}/confirm', [BookingController::class, 'confirmBooking'])
+        ->name('bookings.manage.confirm');
+    Route::post('/manage-bookings/{booking}/cancel', [BookingController::class, 'cancelBooking'])
+        ->name('bookings.manage.cancel');
 
     Route::resource('destinations', DestinationController::class)->only(['index', 'store', 'create', 'update', 'destroy', 'edit']);
     Route::resource('gallery', GalleryController::class)->only(['index', 'store', 'create', 'destroy']);
@@ -84,6 +92,30 @@ Route::get('/destinations/{destination}', [DestinationController::class, 'show']
 Route::get('/dashboard', [UtilityController::class, 'dashboard'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| User Accessible Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:user'])->group(function () {
+    // User destinations - view only (read-only access to active destinations)
+    Route::get('/user-destinations', [DestinationController::class, 'userIndex'])
+        ->name('user.destinations.index');
+    
+    // User gallery - view only (view all gallery images)
+    Route::get('/user-gallery', [GalleryController::class, 'userIndex'])
+        ->name('user.gallery.index');
+    
+    // User bookings
+    Route::get('/bookings/create/{destination}', [BookingController::class, 'createForDestination'])
+        ->name('bookings.create');
+    Route::post('/bookings', [BookingController::class, 'storeUserBooking'])
+        ->name('bookings.store');
+    Route::get('/my-bookings', [BookingController::class, 'userBookings'])
+        ->name('bookings.user.index');
+});
 
 /*
 |--------------------------------------------------------------------------

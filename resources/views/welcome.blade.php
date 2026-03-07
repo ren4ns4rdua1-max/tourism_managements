@@ -478,7 +478,7 @@ body>div:not(#stage){
     <div class="photo-bottom">
       <div class="loc-badge">
         <div class="loc-dot"></div>
-        Philippines &nbsp;·&nbsp; 7,641 Islands
+        Hinoba-an &nbsp;·&nbsp; Islands
       </div>
 
       <h1 class="photo-headline">
@@ -487,23 +487,10 @@ body>div:not(#stage){
       </h1>
 
       <p class="photo-sub">
-        Curated journeys through the Philippines' most breathtaking destinations — crafted for the discerning traveler.
+        Curated journeys through the Hinoba-an' most breathtaking destinations — crafted for the discerning traveler.
       </p>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-n">500<span>+</span></div>
-          <div class="stat-l">Destinations</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">50<span>K</span></div>
-          <div class="stat-l">Travelers</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">4.9<span>★</span></div>
-          <div class="stat-l">Rating</div>
-        </div>
-      </div>
+     
 
       <div class="indicators">
         <div class="ind a" onclick="setSlide(0)"></div>
