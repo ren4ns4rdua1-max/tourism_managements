@@ -11,7 +11,8 @@ class FeedbackController extends Controller
      */
     public function index()
     {
-        //
+$feedbacks = \App\Models\Feedback::latest()->paginate(10);
+        return view('feedback.index', compact('feedbacks'));
     }
 
     /**
