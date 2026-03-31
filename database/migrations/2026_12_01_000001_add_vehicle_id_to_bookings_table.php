@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->foreignId('vehicle_id')->nullable()->constrained('transportation_vehicles')->onDelete('set null');
-        });
+        if (!Schema::hasColumn('bookings', 'vehicle_id')) {
+            Schema::table('bookings', function (Blueprint $table) {
+                $table->foreignId('vehicle_id')->nullable()->constrained('transportation_vehicles')->onDelete('set null');
+            });
+        }
     }
 
     /**

@@ -1143,8 +1143,9 @@
                 </div>
                 
                 <!-- Login Form -->
-                <form id="login-form" method="POST" action="{{ route('login') }}">
+<form id="login-form" method="POST" action="{{ route('login') }}">
                     @csrf
+
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
                         <input type="email" name="email" class="form-input" placeholder="Enter your email" required>
@@ -1166,8 +1167,9 @@
                 </form>
                 
                 <!-- Register Form -->
-                <form id="register-form" method="POST" action="{{ route('register') }}" style="display: none;">
+<form id="register-form" method="POST" action="{{ route('register') }}" style="display: none;">
                     @csrf
+
                     <div class="form-group">
                         <label class="form-label">First Name</label>
                         <input type="text" name="first_name" class="form-input" placeholder="Enter your first name" required>
@@ -1175,6 +1177,15 @@
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
                         <input type="text" name="last_name" class="form-input" placeholder="Enter your last name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Type</label>
+                        <select name="role" class="form-input" required>
+                            <option value="">Select type</option>
+                            <option value="user">Traveler (User)</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Administrator</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
