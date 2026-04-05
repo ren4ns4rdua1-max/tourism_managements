@@ -102,7 +102,7 @@ class WelcomeContentController extends Controller
 
         $content->update($validated);
 
-        return redirect()->route('welcome.content.edit')
+        return redirect()->route('welcome-content.edit')
             ->with('success', 'Welcome page content updated successfully!');
     }
 
@@ -114,8 +114,7 @@ class WelcomeContentController extends Controller
         $content = WelcomeContent::getContent();
         $content->update(WelcomeContent::getDefaults());
 
-        return redirect()->route('welcome.content.edit')
+        return redirect()->route('welcome-content.edit')
             ->with('success', 'Content reset to defaults successfully!');
     }
 }
-

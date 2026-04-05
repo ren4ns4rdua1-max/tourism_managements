@@ -11,6 +11,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\TransportationController;
+use App\Http\Controllers\WelcomeContentController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -64,17 +67,23 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('gallery', GalleryController::class)->only(['index', 'store', 'create', 'edit', 'update', 'destroy']);
     Route::resource('feedback', FeedbackController::class)->only(['index', 'store', 'create', 'show', 'update', 'destroy', 'edit']);
     
+    // Welcome Content (singleton - no model binding)
+    Route::get('/welcome-content/edit', [WelcomeContentController::class, 'edit'])->name('welcome-content.edit');
+    Route::put('/welcome-content', [WelcomeContentController::class, 'update'])->name('welcome-content.update');
+    
     // Tour Packages Management
     Route::resource('tour-packages', \App\Http\Controllers\TourPackageController::class);
 
-    // Transportation Management
+    // Transportation Management (Admin & Manager)
     Route::resource('transportation', \App\Http\Controllers\TransportationController::class);
 
     // Hotel Management
     Route::resource('hotel', HotelController::class);
 
-    // Restaurant Management
-    Route::resource('restaurants', RestaurantController::class);
+    // Restaurant Management (Admin only)
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('restaurants', RestaurantController::class);
+    });
 
     // Reports (Admin & Manager)
     Route::get('/reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index');
@@ -131,6 +140,10 @@ Route::get('/dashboard', [UtilityController::class, 'dashboard'])
 */
 
     Route::middleware(['auth', 'role:user'])->group(function () {
+        Route::get('/hotels', [HotelController::class, 'index'])->name('hotel.user.index');
+        Route::get('/tour-package', [TourPackageController::class, 'userIndex'])->name('tour-package.user.index');
+        Route::get('/transportation', [TransportationController::class, 'index'])->name('transportation.user.index');
+        Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants.user.index');
         // User destinations - view only (read-only access to active destinations)
         Route::get('/user-destinations', [DestinationController::class, 'userIndex'])
             ->name('user.destinations.index');
@@ -176,3 +189,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
