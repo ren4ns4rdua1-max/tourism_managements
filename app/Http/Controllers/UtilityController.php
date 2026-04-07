@@ -35,16 +35,14 @@ class UtilityController extends Controller
         return 'Success! You are now admin. Role: ' . $user->role;
     }
 
-    public function dashboard()
+public function dashboard()
     {
         $user = auth()->user();
 
-        if ($user->role === 'admin') {
-            return view('dashboard');
-        } elseif ($user->role === 'manager') {
-            return view('dashboard.manager');
-        } else {
-            return view('dashboard.user');
+        if ($user->role !== 'admin') {
+            abort(403, 'Admin access required for dashboard.');
         }
+
+        return view('dashboard');
     }
 }

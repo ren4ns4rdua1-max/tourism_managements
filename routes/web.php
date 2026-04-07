@@ -131,7 +131,7 @@ Route::get('/destinations/{destination}', [DestinationController::class, 'show']
 */
 
 Route::get('/dashboard', [UtilityController::class, 'dashboard'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'role:admin'])
     ->name('dashboard');
 
 /*

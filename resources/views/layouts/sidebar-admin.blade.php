@@ -34,7 +34,7 @@
                 <span>Dashboard</span>
             </a>
 
-            <a href="{{ route('destinations.index') }}"
+<a href="{{ route('destinations.index') }}" @role('admin')
                @class([
                    'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
                    'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' => request()->routeIs('destinations.*'),
@@ -49,7 +49,7 @@
                 <span>Tourist Management</span>
             </a>
 
-            <a href="{{ route('bookings.admin.index') }}"
+<a href="{{ route('bookings.admin.index') }}" @role('admin')
                @class([
                    'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
                    'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' => request()->routeIs('bookings.*'),
@@ -98,7 +98,7 @@
 
            
 
-            <a href="{{ route('payments.index') }}"
+<a href="{{ route('payments.index') }}" @role('admin')
                @class([
                    'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
                    'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' => request()->routeIs('payments.*'),

@@ -107,7 +107,9 @@
 <body class="h-full bg-gray-100 dark:bg-gray-900">
     <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
         
-        @include('layouts.sidebar-admin')
+@if(auth()->user()->role === 'admin')
+@include('layouts.sidebar-admin')
+@endif
 
         <!-- Mobile Menu Button -->
         <div class="lg:hidden fixed top-4 left-4 z-50">
