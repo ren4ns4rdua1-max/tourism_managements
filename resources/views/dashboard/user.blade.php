@@ -1,15 +1,23 @@
 @php
-    use App\Models\User;
+use App\Models\User;
     use App\Models\Destination;
     use App\Models\Gallery;
     use App\Models\Booking;
+    use App\Models\TourPackage;
     use Illuminate\Support\Facades\DB;
 
     $totalDestinations = Destination::where('is_active', true)->count();
     $totalGallery      = Gallery::count();
+$totalDestinations = Destination::where('is_active', true)->count();
+    $totalGallery      = Gallery::count();
+    $totalTourPackages = TourPackage::where('status', 'active')->where('available_slots', '>', 0)->count();
     $availableDestinations = Destination::where('is_active', true)->orderBy('created_at', 'desc')->get();
+    $availableTourPackages = TourPackage::where('status', 'active')->where('available_slots', '>', 0)->with('guide')->orderBy('created_at', 'desc')->take(5)->get();
     $galleryItems      = Gallery::with('user')->latest()->get();
     $userBookings      = Booking::with(['destination', 'hotel', 'room'])->where('user_id', Auth::id())->latest()->get();
+
+$totalTourPackages = TourPackage::where('status', 'active')->where('available_slots', '>', 0)->count();
+$availableTourPackages = TourPackage::where('status', 'active')->where('available_slots', '>', 0)->with('guide')->orderBy('created_at', 'desc')->take(5)->get();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -266,7 +274,7 @@ body::after{
 .hero-meta-row{display:flex;align-items:center;gap:9px;font-size:.8rem;color:rgba(134,239,172,.7);}
 
 /* ─── STAT CARDS ─────────────────────────────── */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;}
 .stat{
   background:var(--card);border:1px solid var(--border);
   border-radius:18px;padding:20px 22px;
@@ -426,7 +434,7 @@ body::after{
 }
 
 /* ─── QUICK ACTIONS ──────────────────────────── */
-.qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:12px;}
 .qa{
   display:flex;align-items:center;gap:14px;
   background:var(--card);border:1px solid var(--border);
@@ -496,30 +504,18 @@ body::after{
       Dashboard
     </a>
 
-    <a href="{{ route('user.destinations.index') }}" class="sb-item">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-      Destinations
-      <span class="sb-badge">{{ $totalDestinations }}</span>
-    </a>
 
+
+    
     <a href="{{ route('bookings.user.index') }}" class="sb-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
       My Bookings
       <span class="sb-badge">{{ $userBookings->count() }}</span>
     </a>
 
-    <a href="{{ route('user.gallery.index') }}" class="sb-item">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-      Gallery
-      <span class="sb-badge">{{ $totalGallery }}</span>
-    </a>
 
     <span class="sb-section-label" style="margin-top:8px;">Account</span>
 
-    <a href="#" class="sb-item">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      Profile
-    </a>
 
     <a href="#" class="sb-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -638,6 +634,16 @@ body::after{
         <div class="stat-num" style="color:var(--amber);">{{ $userBookings->count() }}</div>
         <div class="stat-label">Total Bookings</div>
       </div>
+
+      <!-- Tour Packages -->
+      <div class="stat">
+        <div class="stat-shine" style="background:#A78BFA;"></div>
+        <div class="stat-icon" style="background:rgba(167,139,250,.12);color:#A78BFA;border:1px solid rgba(167,139,250,.2);">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9.5 14.5l-2 2 4 4 6-6m-8-4v6m4-6v6"/></svg>
+        </div>
+        <div class="stat-num" style="color:#A78BFA;">{{ $totalTourPackages }}</div>
+        <div class="stat-label">Available Packages</div>
+      </div>
     </div>
 
     <!-- ── QUICK ACTIONS ── -->
@@ -669,6 +675,14 @@ body::after{
             <svg width="22" height="22" fill="none" stroke="var(--amber)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
           <div style="flex:1;"><p style="font-weight:600;font-size:.88rem;color:var(--text);">My Bookings</p><p style="font-size:.75rem;color:var(--muted);margin-top:2px;">Manage reservations</p></div>
+          <svg width="14" height="14" fill="none" stroke="var(--dim)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+
+        <a href="{{ route('tour-packages.user.index') }}" class="qa">
+          <div class="qa-icon" style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);">
+            <svg width="22" height="22" fill="none" stroke="#A78BFA" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div style="flex:1;"><p style="font-weight:600;font-size:.88rem;color:var(--text);">Tour Packages</p><p style="font-size:.75rem;color:var(--muted);margin-top:2px;">Book guided tours</p></div>
           <svg width="14" height="14" fill="none" stroke="var(--dim)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
         </a>
       </div>
@@ -946,6 +960,123 @@ body::after{
           <div class="empty-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
           <p style="font-weight:600;color:var(--text);font-size:.88rem;">Gallery is empty</p>
           <p style="font-size:.77rem;color:var(--muted);margin-top:4px;">No photos uploaded yet.</p>
+        </div>
+        @endif
+      </div>
+    </div>
+
+    {{-- ════════════════════════════════════════
+         AVAILABLE TOUR PACKAGES TABLE
+         ════════════════════════════════════════ --}}
+    <div class="fu fu7" style="animation-delay:.4s;">
+      <div class="sec-head">
+        <div class="sec-title">
+          <div class="sec-title-dot" style="background:#A78BFA;"></div>
+          <span class="sec-title-text">Available Tour Packages</span>
+          <div class="sec-line"></div>
+        </div>
+        <a href="{{ route('tour-packages.user.index') }}" class="sec-link" style="color:#A78BFA;">
+          View all <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="tpanel">
+        @if($availableTourPackages->count() > 0)
+
+        <div class="thead" style="grid-template-columns:2fr 1fr 1fr 1.4fr 1fr 1fr 72px;">
+          <span class="th">Package</span>
+          <span class="th">Duration</span>
+          <span class="th">Price</span>
+          <span class="th">Guide</span>
+          <span class="th">Slots</span>
+          <span class="th">Status</span>
+          <span class="th" style="text-align:right;">Action</span>
+        </div>
+
+        @foreach($availableTourPackages as $package)
+        <div class="trow" style="grid-template-columns:2fr 1fr 1fr 1.4fr 1fr 1fr 72px;">
+
+          <!-- Package + thumb -->
+          <div class="tcell" style="flex-direction:row;align-items:center;gap:11px;">
+            <div class="thumb" style="background:linear-gradient(135deg,#A78BFA,#8B5CF6);">
+              @if($package->image)
+                <img src="{{ asset('storage/'.$package->image) }}" alt="{{ $package->name }}">
+              @else
+                <svg width="17" height="17" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.5 14.5l-2 2 4 4 6-6m-8-4v6m4-6v6"/></svg>
+              @endif
+            </div>
+            <div style="min-width:0;">
+              <span class="tcell-label">Package</span>
+              <span class="tv tv-bold">{{ $package->name }}</span>
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div class="tcell">
+            <span class="tcell-label">Duration</span>
+            <span class="tv">{{ $package->duration_days }} {{ Str::plural('day', $package->duration_days) }}</span>
+          </div>
+
+          <!-- Price -->
+          <div class="tcell">
+            <span class="tcell-label">Price</span>
+            <span class="tv price">₱{{ number_format($package->price, 2) }}</span>
+          </div>
+
+          <!-- Guide -->
+          <div class="tcell">
+            <span class="tcell-label">Guide</span>
+            @if($package->guide)
+              <span class="tv" style="display:flex;align-items:center;gap:7px;">
+                <div class="av" style="background:linear-gradient(135deg,#A78BFA,#8B5CF6);">{{ substr($package->guide->name, 0, 1) }}</div>
+                {{ $package->guide->name }}
+              </span>
+            @else
+              <span class="tv tv-muted">No guide assigned</span>
+            @endif
+          </div>
+
+          <!-- Slots -->
+          <div class="tcell">
+            <span class="tcell-label">Slots</span>
+            <span class="tv">{{ $package->remaining_slots }} / {{ $package->available_slots }}</span>
+          </div>
+
+          <!-- Status badge -->
+          <div class="tcell">
+            <span class="tcell-label">Status</span>
+            @php
+              $remaining = $package->remaining_slots;
+              $badgeClass = $remaining > 5 ? 'b-green' : ($remaining > 0 ? 'b-amber' : 'b-red');
+              $badgeText = $remaining > 0 ? $remaining.' slots left' : 'No slots';
+            @endphp
+            <span class="tv"><span class="badge {{ $badgeClass }}">{{ $remaining > 0 ? '<span class=\"badge-dot\"></span>' : '' }}{{ $badgeText }}</span></span>
+          </div>
+
+          <!-- Action -->
+          <div class="tcell" style="align-items:flex-end;">
+            <span class="tcell-label">Action</span>
+            <a href="{{ route('tour-packages.show', $package) }}" class="vbtn" style="border-color:rgba(167,139,250,.2);color:#A78BFA;">
+              <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View
+            </a>
+          </div>
+
+        </div>
+        @endforeach
+
+        <div class="tfoot">
+          <span class="tfoot-count">{{ $availableTourPackages->count() }} packages</span>
+          <a href="{{ route('tour-packages.user.index') }}" class="tfoot-link" style="color:#A78BFA;">All packages <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></a>
+        </div>
+
+        @else
+        <div class="empty">
+          <div class="empty-icon" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.15);color:#A78BFA;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.5 14.5l-2 2 4 4 6-6m-8-4v6m4-6v6"/></svg>
+          </div>
+          <p style="font-weight:600;color:var(--text);font-size:.88rem;">No tour packages available</p>
+          <p style="font-size:.77rem;color:var(--muted);margin-top:4px;">Check back soon for guided tours.</p>
         </div>
         @endif
       </div>
