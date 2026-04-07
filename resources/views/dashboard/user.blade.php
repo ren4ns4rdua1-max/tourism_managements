@@ -3,13 +3,19 @@
     use App\Models\Destination;
     use App\Models\Gallery;
     use App\Models\Booking;
+    use App\Models\Hotel;
+    use App\Models\TourPackage;
     use Illuminate\Support\Facades\DB;
 
     $totalDestinations = Destination::where('is_active', true)->count();
     $totalGallery      = Gallery::count();
-    $availableDestinations = Destination::where('is_active', true)->orderBy('created_at', 'desc')->get();
-    $galleryItems      = Gallery::with('user')->latest()->get();
-    $userBookings      = Booking::with(['destination', 'hotel', 'room'])->where('user_id', Auth::id())->latest()->get();
+    $totalHotels       = Hotel::where('status', 'active')->count();
+    $totalTourPackages = TourPackage::where('available_slots', '>', 0)->count();
+    $availableDestinations = Destination::where('is_active', true)->orderBy('created_at', 'desc')->take(5)->get();
+    $recentHotels      = Hotel::with('rooms')->where('status', 'active')->latest()->take(5)->get();
+    $recentTourPackages = TourPackage::with(['destinations'])->where('available_slots', '>', 0)->latest()->take(5)->get();
+    $galleryItems      = Gallery::with('user')->latest()->take(5)->get();
+    $userBookings      = Booking::with(['destination', 'hotel', 'tourPackage', 'room'])->where('user_id', Auth::id())->latest()->get();
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -508,6 +514,18 @@ body::after{
       <span class="sb-badge">{{ $userBookings->count() }}</span>
     </a>
 
+    <a href="{{ route('hotel.user.index') }}" class="sb-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.091 3.637h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.637a1 1 0 00-1-1zM17.091 8.637h-2.273v-2h2.273v2zM21.091 3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637H7.091v5.273a1 1 0 01-1 1H1.819a1 1 0 01-1-1V4.637a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"/></svg>
+      Hotels
+      <span class="sb-badge">{{ $totalHotels }}</span>
+    </a>
+
+    <a href="{{ route('tour-package.user.index') }}" class="sb-item">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"/></svg>
+      Tour Packages
+      <span class="sb-badge">{{ $totalTourPackages }}</span>
+    </a>
+
     <a href="{{ route('user.gallery.index') }}" class="sb-item">
       <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       Gallery
@@ -638,6 +656,26 @@ body::after{
         <div class="stat-num" style="color:var(--amber);">{{ $userBookings->count() }}</div>
         <div class="stat-label">Total Bookings</div>
       </div>
+
+      <!-- Hotels -->
+      <div class="stat">
+        <div class="stat-shine" style="background:var(--amber);"></div>
+        <div class="stat-icon" style="background:rgba(252,211,77,.1);color:var(--amber);">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19.091 3.637h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.637a1 1 0 00-1-1zM17.091 8.637h-2.273v-2h2.273v2zM21.091 3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637H7.091v5.273a1 1 0 01-1 1H1.819a1 1 0 01-1-1V4.637a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"/></svg>
+        </div>
+        <div class="stat-num" style="color:var(--amber);">{{ $totalHotels }}</div>
+        <div class="stat-label">Active Hotels</div>
+      </div>
+
+      <!-- Tour Packages -->
+      <div class="stat">
+        <div class="stat-shine" style="background:#A78BFA;"></div>
+        <div class="stat-icon" style="background:rgba(167,139,250,.12);color:#A78BFA;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"/></svg>
+        </div>
+        <div class="stat-num" style="color:#A78BFA;">{{ $totalTourPackages }}</div>
+        <div class="stat-label">Tour Packages</div>
+      </div>
     </div>
 
     <!-- ── QUICK ACTIONS ── -->
@@ -669,6 +707,22 @@ body::after{
             <svg width="22" height="22" fill="none" stroke="var(--amber)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
           <div style="flex:1;"><p style="font-weight:600;font-size:.88rem;color:var(--text);">My Bookings</p><p style="font-size:.75rem;color:var(--muted);margin-top:2px;">Manage reservations</p></div>
+          <svg width="14" height="14" fill="none" stroke="var(--dim)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+
+        <a href="{{ route('hotel.user.index') }}" class="qa">
+          <div class="qa-icon" style="background:rgba(252,211,77,.08);border:1px solid rgba(252,211,77,.12);">
+            <svg width="22" height="22" fill="none" stroke="var(--amber)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19.091 3.637h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.637a1 1 0 00-1-1zM17.091 8.637h-2.273v-2h2.273v2zM21.091 3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637H7.091v5.273a1 1 0 01-1 1H1.819a1 1 0 01-1-1V4.637a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"/></svg>
+          </div>
+          <div style="flex:1;"><p style="font-weight:600;font-size:.88rem;color:var(--text);">Browse Hotels</p><p style="font-size:.75rem;color:var(--muted);margin-top:2px;">Find accommodations</p></div>
+          <svg width="14" height="14" fill="none" stroke="var(--dim)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+
+        <a href="{{ route('tour-package.user.index') }}" class="qa">
+          <div class="qa-icon" style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.12);">
+            <svg width="22" height="22" fill="none" stroke="#A78BFA" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"/></svg>
+          </div>
+          <div style="flex:1;"><p style="font-weight:600;font-size:.88rem;color:var(--text);">Tour Packages</p><p style="font-size:.75rem;color:var(--muted);margin-top:2px;">Guided adventures</p></div>
           <svg width="14" height="14" fill="none" stroke="var(--dim)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
         </a>
       </div>
@@ -863,9 +917,206 @@ body::after{
 
 
     {{-- ════════════════════════════════════════
-         GALLERY TABLE
+         FEATURED HOTELS TABLE
          ════════════════════════════════════════ --}}
     <div class="fu fu6">
+      <div class="sec-head">
+        <div class="sec-title">
+          <div class="sec-title-dot" style="background:var(--amber);"></div>
+          <span class="sec-title-text">Featured Hotels</span>
+          <div class="sec-line"></div>
+        </div>
+        <a href="{{ route('hotel.user.index') }}" class="sec-link" style="color:var(--amber);">
+          View all <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="tpanel">
+        @if($recentHotels->count() > 0)
+
+        <div class="thead" style="grid-template-columns:2.2fr 1.8fr 1fr 1fr 72px;">
+          <span class="th">Hotel</span>
+          <span class="th">Location</span>
+          <span class="th">Rooms</span>
+          <span class="th">Status</span>
+          <span class="th" style="text-align:right;">Action</span>
+        </div>
+
+        @foreach($recentHotels->take(5) as $hotel)
+        <div class="trow" style="grid-template-columns:2.2fr 1.8fr 1fr 1fr 72px;">
+
+          <!-- Name + thumb -->
+          <div class="tcell" style="flex-direction:row;align-items:center;gap:11px;">
+            <div class="thumb" style="background:linear-gradient(135deg, var(--amber), #F59E0B);">
+              <svg width="17" height="17" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.092 3.636h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.636a1 1 0 00-1-1zM17.092 8.636h-2.273v-2h2.273v2zM21.092 3.636h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.636h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.636H7.092v5.273a1 1 0 01-1 1H1.82a1 1 0 01-1-1V4.636a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"/></svg>
+            </div>
+            <div class="tcell">
+              <span class="tcell-label">Hotel</span>
+              <span class="tv tv-bold">{{ $hotel->name }}</span>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="tcell">
+            <span class="tcell-label">Location</span>
+            <span class="tv" style="display:flex;align-items:center;gap:5px;color:var(--muted);">
+              <svg width="11" height="11" fill="none" stroke="#F87171" viewBox="0 0 24 24" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+              {{ $hotel->city ?? '—' }}, {{ $hotel->country ?? '—' }}
+            </span>
+          </div>
+
+          <!-- Rooms -->
+          <div class="tcell">
+            <span class="tcell-label">Rooms</span>
+            <span class="tv">{{ $hotel->rooms->count() }} total</span>
+            <span class="tv-sub">{{ $hotel->rooms->where('status', 'available')->count() }} available</span>
+          </div>
+
+          <!-- Status -->
+          <div class="tcell">
+            <span class="tcell-label">Status</span>
+            <span class="tv">
+              @if($hotel->status == 'active')
+                <span class="badge b-green"><span class="badge-dot"></span>Active</span>
+              @elseif($hotel->status == 'inactive')
+                <span class="badge b-gray">Inactive</span>
+              @else
+                <span class="badge b-amber">Maintenance</span>
+              @endif
+            </span>
+          </div>
+
+          <!-- Action -->
+          <div class="tcell" style="align-items:flex-end;">
+            <span class="tcell-label">Action</span>
+            <a href="{{ route('hotel.show', $hotel) }}" class="vbtn">
+              <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View
+            </a>
+          </div>
+
+        </div>
+        @endforeach
+
+        <div class="tfoot">
+          <span class="tfoot-count">{{ $recentHotels->count() }} hotels</span>
+          <a href="{{ route('hotel.user.index') }}" class="tfoot-link" style="color:var(--amber);">All hotels <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></a>
+        </div>
+
+        @else
+        <div class="empty">
+          <div class="empty-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.092 3.636h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.636a1 1 0 00-1-1zM17.092 8.636h-2.273v-2h2.273v2zM21.092 3.636h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.636h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.636H7.092v5.273a1 1 0 01-1 1H1.82a1 1 0 01-1-1V4.636a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"/></svg></div>
+          <p style="font-weight:600;color:var(--text);font-size:.88rem;">No hotels available</p>
+          <p style="font-size:.77rem;color:var(--muted);margin-top:4px;">Check back soon.</p>
+        </div>
+        @endif
+      </div>
+    </div>
+
+    {{-- ════════════════════════════════════════
+         GALLERY TABLE
+         ════════════════════════════════════════ --}}
+    {{-- ════════════════════════════════════════
+         UPCOMING TOUR PACKAGES TABLE
+         ════════════════════════════════════════ --}}
+    <div class="fu fu7">
+      <div class="sec-head">
+        <div class="sec-title">
+          <div class="sec-title-dot" style="background:#A78BFA;"></div>
+          <span class="sec-title-text">Upcoming Tour Packages</span>
+          <div class="sec-line"></div>
+        </div>
+        <a href="{{ route('tour-package.user.index') }}" class="sec-link" style="color:#A78BFA;">
+          View all <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="tpanel">
+        @if($recentTourPackages->count() > 0)
+
+        <div class="thead" style="grid-template-columns:2fr 1.5fr 1fr 1fr 72px;">
+          <span class="th">Package</span>
+          <span class="th">Destinations</span>
+          <span class="th">Price</span>
+          <span class="th">Slots</span>
+          <span class="th" style="text-align:right;">Action</span>
+        </div>
+
+        @foreach($recentTourPackages->take(5) as $tour)
+        <div class="trow" style="grid-template-columns:2fr 1.5fr 1fr 1fr 72px;">
+
+          <!-- Name + icon -->
+          <div class="tcell" style="flex-direction:row;align-items:center;gap:11px;">
+            <div class="thumb" style="background:linear-gradient(135deg, #A78BFA, #9333EA);">
+              <svg width="17" height="17" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"/></svg>
+            </div>
+            <div class="tcell">
+              <span class="tcell-label">Package</span>
+              <span class="tv tv-bold">{{ $tour->name }}</span>
+              <span class="tv-sub">{{ $tour->duration_days ?? '—' }} days</span>
+            </div>
+          </div>
+
+          <!-- Destinations -->
+          <div class="tcell">
+            <span class="tcell-label">Destinations</span>
+            <span class="tv">
+              @foreach($tour->destinations->take(2) as $dest)
+                {{ $dest->name }}@if(!$loop->last), @endif
+              @endforeach
+              @if($tour->destinations->count() > 2)
+                <span class="tv-sub">+{{ $tour->destinations->count() - 2 }} more</span>
+              @endif
+            </span>
+          </div>
+
+          <!-- Price -->
+          <div class="tcell">
+            <span class="tcell-label">Price</span>
+            <span class="tv price">${{ number_format($tour->price, 0) }}</span>
+          </div>
+
+          <!-- Slots -->
+          <div class="tcell">
+            <span class="tcell-label">Slots</span>
+            <span class="tv">
+              <span class="badge b-{{ $tour->remaining_slots > 0 ? 'green' : 'red' }}">
+                <span class="badge-dot"></span>{{ $tour->remaining_slots }} left
+              </span>
+            </span>
+          </div>
+
+          <!-- Action -->
+          <div class="tcell" style="align-items:flex-end;">
+            <span class="tcell-label">Action</span>
+            <a href="{{ route('tour-package.show', $tour) }}" class="vbtn">
+              <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View
+            </a>
+          </div>
+
+        </div>
+        @endforeach
+
+        <div class="tfoot">
+          <span class="tfoot-count">{{ $recentTourPackages->count() }} packages</span>
+          <a href="{{ route('tour-package.user.index') }}" class="tfoot-link" style="color:#A78BFA;">All packages <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></a>
+        </div>
+
+        @else
+        <div class="empty">
+          <div class="empty-icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"/></svg></div>
+          <p style="font-weight:600;color:var(--text);font-size:.88rem;">No tour packages available</p>
+          <p style="font-size:.77rem;color:var(--muted);margin-top:4px;">Check back soon.</p>
+        </div>
+        @endif
+      </div>
+    </div>
+
+    {{-- ════════════════════════════════════════
+         GALLERY TABLE
+         ════════════════════════════════════════ --}}
+    <div class="fu fu8">
       <div class="sec-head">
         <div class="sec-title">
           <div class="sec-title-dot" style="background:var(--sky);"></div>

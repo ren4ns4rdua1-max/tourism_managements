@@ -121,8 +121,8 @@
                     </div>
                     @endif
 
-                    <!-- ===================== FORM ===================== -->
-                    <form method="POST" action="{{ route('welcome.content.update') }}">
+<!-- ===================== FORM ===================== -->
+                    <form method="POST" action="{{ route('welcome-content.update') }}">
                         @csrf
                         @method('PUT')
 
@@ -425,8 +425,8 @@
 
                         <!-- ── Sticky Action Bar ── -->
                         <div class="sticky-bar mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 shadow-lg rounded-2xl">
-                            <div class="flex items-center justify-between gap-4">
-                                <form method="POST" action="{{ route('welcome.content.reset') }}">
+<div class="flex items-center justify-between gap-4">
+                                <form method="POST" action="{{ route('welcome-content.reset') }}">
                                     @csrf
                                     <button type="submit"
                                             onclick="return confirm('Reset all content to defaults? This cannot be undone.')"

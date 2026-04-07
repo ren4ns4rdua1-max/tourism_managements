@@ -6,6 +6,59 @@
             <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Tourism Portal</h1>
         </div>
 
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <ul>
+                <li>
+                    <a href="{{ route('dashboard') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('hotel.user.index') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.091 3.637h-4.273a1 1 0 00-1 1v5.273a1 1 0 001 1h4.273a1 1 0 001-1V4.637a1 1 0 00-1-1zM17.091 8.637h-2.273v-2h2.273v2zM21.091 3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637h-2v5.273a1 1 0 01-1 1h-4.273a1 1 0 01-1-1V3.637H7.091v5.273a1 1 0 01-1 1H1.819a1 1 0 01-1-1V4.637a1 1 0 011-1h4.273a1 1 0 001-1V1h5.273a1 1 0 011 1v2.273a1 1 0 001 1h4.273a1 1 0 011 1v5.273z"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Hotels</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('tour-package.user.index') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM7 11h10m-5 7h2"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Tour Packages</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.destinations.index') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 01 3 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Destinations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('bookings.user.index') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Bookings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.gallery.index') }}" class="flex items-center w-full px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group">
+                        <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-sky-600 dark:group-hover:text-sky-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Gallery</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
         <!-- User Profile Section at Bottom -->
         <div class="border-t border-gray-200 dark:border-gray-700 p-4">

@@ -68,14 +68,15 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('feedback', FeedbackController::class)->only(['index', 'store', 'create', 'show', 'update', 'destroy', 'edit']);
     
     // Welcome Content (singleton - no model binding)
-    Route::get('/welcome-content/edit', [WelcomeContentController::class, 'edit'])->name('welcome-content.edit');
+Route::get('/welcome-content/edit', [WelcomeContentController::class, 'edit'])->name('welcome-content.edit');
     Route::put('/welcome-content', [WelcomeContentController::class, 'update'])->name('welcome-content.update');
+    Route::post('/welcome-content/reset', [WelcomeContentController::class, 'reset'])->name('welcome-content.reset');
     
     // Tour Packages Management
     Route::resource('tour-packages', \App\Http\Controllers\TourPackageController::class);
 
     // Transportation Management (Admin & Manager)
-    Route::resource('transportation', \App\Http\Controllers\TransportationController::class);
+    Route::resource('transportation', \App\Http\Controllers\TransportationController::class)->names('transportation');
 
     // Hotel Management
     Route::resource('hotel', HotelController::class);

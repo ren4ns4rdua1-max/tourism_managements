@@ -45,11 +45,21 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,user,manager',
-        ]);
+        ];
+
+        $passwordRules = [
+            'password' => 'sometimes|nullable|min:8|confirmed',
+        ];
+
+        $validated = $request->validate($rules + $passwordRules);
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($validated['password']);
+        } unset($validated['password_confirmation']);
 
         $user->update($validated);
 
