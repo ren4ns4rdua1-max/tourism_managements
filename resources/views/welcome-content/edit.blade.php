@@ -25,40 +25,132 @@
     </script>
     <style>
         * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Prevent body from scrolling */
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* Main content scrollbar */
+        .main-content-scroll {
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        
+        .main-content-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .main-content-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .main-content-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        .main-content-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .dark .main-content-scroll::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        
+        .dark .main-content-scroll::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+        
+        .dark .main-content-scroll::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
 
         /* Sticky save bar */
         .sticky-bar {
             position: sticky;
-            bottom: 0;
+            bottom: 1rem;
             z-index: 10;
+        }
+        
+        /* Fix for sidebar container */
+        .sidebar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 16rem; /* w-64 */
+            z-index: 40;
+        }
+        
+        /* Main content wrapper */
+        .main-wrapper {
+            margin-left: 16rem; /* w-64 */
+            width: calc(100% - 16rem);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1023px) {
+            .sidebar-container {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            
+            .sidebar-container.open {
+                transform: translateX(0);
+            }
+            
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 font-sans">
-    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
-
-        @if(auth()->user()->role === 'admin')
-            @include('layouts.sidebar-admin')
-        @else
-            @include('layouts.sidebar-manager')
-        @endif
+    <div x-data="{ sidebarOpen: false }" class="relative">
+        
+        <!-- Sidebar Component -->
+        <div class="sidebar-container bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl"
+             :class="{'open': sidebarOpen}">
+            @if(auth()->user()->role === 'admin')
+                @include('layouts.sidebar-admin')
+            @else
+                @include('layouts.sidebar-manager')
+            @endif
+        </div>
 
         <!-- Mobile Menu Button -->
         <div class="lg:hidden fixed top-4 left-4 z-50">
             <button @click="sidebarOpen = !sidebarOpen"
-                    class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300">
+                    class="p-2.5 rounded-xl bg-white dark:bg-gray-800 shadow-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <i class="fas fa-bars text-xl"></i>
             </button>
         </div>
+        
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen"
+             @click="sidebarOpen = false"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+             style="display: none;">
+        </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden lg:pl-64">
-
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
             <!-- Header -->
-            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm flex-shrink-0">
                 <div class="px-6 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center pl-12 lg:pl-0">
@@ -84,9 +176,9 @@
                 </div>
             </header>
 
-            <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto scrollbar-thin p-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-                <div class="max-w-5xl mx-auto space-y-6">
+            <!-- Scrollable Main Content Area -->
+            <main class="flex-1 main-content-scroll p-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+                <div class="max-w-5xl mx-auto space-y-6 pb-8">
 
                     <!-- Success Alert -->
                     @if(session('success'))
@@ -122,7 +214,7 @@
                     @endif
 
                     <!-- ===================== FORM ===================== -->
-                    <form method="POST" action="{{ route('welcome.content.update') }}">
+                    <form action="{{ route('welcome-content.update') }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -424,9 +516,9 @@
                         </div>{{-- end space-y-6 --}}
 
                         <!-- ── Sticky Action Bar ── -->
-                        <div class="sticky-bar mt-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 shadow-lg rounded-2xl">
+                        <div class="sticky-bar mt-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-4 shadow-lg rounded-2xl">
                             <div class="flex items-center justify-between gap-4">
-                                <form method="POST" action="{{ route('welcome.content.reset') }}">
+                                <form action="{{ route('welcome-content.reset') }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit"
                                             onclick="return confirm('Reset all content to defaults? This cannot be undone.')"
@@ -458,9 +550,18 @@
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
         }
+        
+        // Initialize dark mode from localStorage
         if (localStorage.getItem('darkMode') === 'true') {
             document.documentElement.classList.add('dark');
         }
+        
+        // Close mobile sidebar when window is resized to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                document.querySelector('.sidebar-container')?.classList.remove('open');
+            }
+        });
     </script>
 </body>
 </html>

@@ -18,6 +18,9 @@ class Feedback extends Model
         'feedback',
         'rating',
         'booking_id',
+        'admin_reply',
+        'replied_at',
+        'replied_by',
     ];
 
     protected $casts = [
@@ -29,6 +32,24 @@ class Feedback extends Model
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function repliedBy()
+    {
+        return $this->belongsTo(User::class, 'replied_by');
+    }
+
+    public function scopeHasReply($query)
+    {
+        return $query->whereNotNull('admin_reply');
+    }
+
+    public function getReplyStatusAttribute()
+    {
+        if ($this->admin_reply) {
+            return 'Replied';
+        }
+        return 'Pending';
     }
 
     public function getStatusBadgeAttribute()

@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\WelcomeContentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,11 @@ Route::get('/', [HomeController::class, 'index']);
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('users', UserController::class);
+    
+    // Welcome Content Editor (Admin only)
+    Route::get('/welcome-content/edit', [WelcomeContentController::class, 'edit'])->name('welcome-content.edit');
+    Route::put('/welcome-content', [WelcomeContentController::class, 'update'])->name('welcome-content.update');
+    Route::post('/welcome-content/reset', [WelcomeContentController::class, 'reset'])->name('welcome-content.reset');
 });
 
 /*
@@ -63,6 +69,10 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     Route::resource('destinations', DestinationController::class)->only(['index', 'store', 'create', 'update', 'destroy', 'edit']);
     Route::resource('gallery', GalleryController::class)->only(['index', 'store', 'create', 'edit', 'update', 'destroy']);
     Route::resource('feedback', FeedbackController::class)->only(['index', 'store', 'create', 'show', 'update', 'destroy', 'edit']);
+    
+    // Feedback Reply Routes
+    Route::get('feedback/{feedback}/reply', [FeedbackController::class, 'reply'])->name('feedback.reply');
+    Route::post('feedback/{feedback}/reply', [FeedbackController::class, 'storeReply'])->name('feedback.reply.store');
     
     // Tour Packages Management
     Route::resource('tour-packages', \App\Http\Controllers\TourPackageController::class);
